@@ -57,6 +57,8 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+from .course.views import home_page
+
 # ---------------- Swagger sozlamalari ----------------
 schema_view = get_schema_view(
     openapi.Info(
@@ -72,8 +74,11 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Authentication (masalan JWT yoki DRF auth)
+    # DRF login/logout sahifasi
     path('api/auth/', include('rest_framework.urls')),
+
+    # Authentication app (check-auth, logout va hokazo)
+    path('api/account/', include('authentication.urls')),
 
     # COURSE app uchun API
     path('api/course/', include(('course.urls', 'course'), namespace='course')),
@@ -81,8 +86,11 @@ urlpatterns = [
     # STUDENT app uchun API
     path('api/student/', include(('student.urls', 'student'), namespace='student')),
 
+    # Frontend bitta template orqali
+    path('', home_page, name='home'),
+
     # Swagger
-    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 

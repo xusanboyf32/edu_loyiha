@@ -165,3 +165,22 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return True
         # Assistant teacher faqat o'z yozgan commentiga ruxsat
         return obj.assistant_teacher.user == request.user
+
+
+
+
+#  KINESCOPE UCHUN VIDEO YUKLASH
+
+
+from rest_framework import permissions, viewsets
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """
+    Adminlar CRUD qilishi mumkin,
+    boshqalar faqat Read-only.
+    """
+    def has_permission(self, request, view):
+        # SAFE_METHODS = GET, HEAD, OPTIONS (read-only)
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user and request.user.is_staff

@@ -295,3 +295,21 @@ class Teachercomment(models.Model):
 
 
 
+
+# --------------------------------------------------------------------
+# KINESCOPE DAN TOLAQONLI FREE VERSIONDA FOYDALAISHDA ADMIN PANELDAN FOYDALANISH
+# --------------------------------------------------------------------
+
+
+class KnescopeVideoUrl(models.Model):
+    title = models.CharField(max_length=255)
+    kinescope_video_link = models.URLField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
+
+
+    def __str__(self):
+        return self.title
+

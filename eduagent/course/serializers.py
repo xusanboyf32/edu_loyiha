@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from .models import Course, High_Teacher, Assistant_Teacher, Group, VideoLesson
-from authentication.models import SifatchiProfile
+from .authentication.models import SifatchiProfile
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -187,7 +187,7 @@ class VideoLessonSerializer(serializers.ModelSerializer):
         return instance
 
 from .models import Task
-from student.models import Student
+from .student.models import Student
 # Task Serializer
 class TaskSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.full_name', read_only=True)
@@ -305,6 +305,25 @@ class TeacherCommentSerializer(serializers.ModelSerializer):
         read_only_fields = ['assistant_teacher_name', 'student_name', 'task_title', 'created_at']
 
 
+
+
+
+# kinescope link videos
+
+from rest_framework import serializers
+from .models import KnescopeVideoUrl
+
+class KnescopeVideoUrlSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KnescopeVideoUrl
+        fields = [
+            'id',
+            'title',
+            'kinescope_video_link',
+            'course',
+            'group',
+            'created_at',
+        ]
 
 
 

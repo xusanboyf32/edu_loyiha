@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>EduAgent Platforma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg: #050816;
+            --bg-alt: #0b1020;
+            --card: #111827;
+            --accent: #22c55e;
+            --accent-soft: rgba(34, 197, 94, 0.15);
+            --accent-strong: rgba(34, 197, 94, 0.3);
+            --border: #1f2937;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --danger: #f97373;
+            --danger-soft: rgba(248, 113, 113, 0.15);
+            --warning: #facc15;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 999px;
+            --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+            --shadow-soft-sm: 0 10px 30px rgba(15, 23, 42, 0.7);
+            --transition-fast: 0.18s ease-out;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            background: radial-gradient(circle at top, #111827 0%, #020617 45%, #000 100%);
+            color: var(--text);
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 1180px;
+            margin: 24px;
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 60%),
+                        radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 55%),
+                        linear-gradient(145deg, #020617, #020617 55%, #030712 100%);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(18px);
+        }
+
+        .app-header {
+            padding: 16px 22px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.85));
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 16px;
+            background: radial-gradient(circle at 30% 20%, #22c55e, #22d3ee 45%, #1d4ed8 100%);
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 0 32px rgba(56, 189, 248, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-logo::after {
+            content: "";
+            position: absolute;
+            inset: 35% 18%;
+            border-radius: 999px;
+            border: 2px solid rgba(15, 23, 42, 0.9);
+        }
+
+        .brand-text-main {
+            font-size: 18px;
+            font-weight: 650;
+            letter-spacing: 0.04em;
+        }
+
+        .brand-text-sub {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.22em;
+            color: var(--muted);
+        }
+
+        .user-summary {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.3), rgba(21, 128, 61, 0.12));
+            border: 1px solid rgba(34, 197, 94, 0.55);
+            font-size: 12px;
+        }
+
+        .user-pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #22c55e;
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.4);
+        }
+
+        .user-role-tag {
+            padding: 3px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .btn {
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 7px 13px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            color: #022c22;
+            box-shadow: 0 10px 30px rgba(22, 163, 74, 0.5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px) scale(1.01);
+            box-shadow: 0 15px 40px rgba(22, 163, 74, 0.7);
+        }
+
+        .btn-outlined {
+            background: transparent;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            color: var(--text);
+        }
+
+        .btn-outlined:hover {
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .btn-pill {
+            border-radius: 999px;
+        }
+
+        .btn-sm {
+            padding: 5px 11px;
+            font-size: 11px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #f97373);
+            color: #fef2f2;
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.45);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-1px) scale(1.01);
+            box-shadow: 0 14px 38px rgba(220, 38, 38, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .app-main {
+            display: grid;
+            grid-template-columns: minmax(0, 230px) minmax(0, 1fr);
+            min-height: 520px;
+            max-height: calc(100vh - 140px);
+        }
+
+        .sidebar {
+            border-right: 1px solid rgba(148, 163, 184, 0.25);
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.96));
+            padding: 14px 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .nav-item {
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--muted);
+            background: transparent;
+            border: 1px solid transparent;
+            transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .nav-item:hover {
+            background: rgba(15, 23, 42, 0.95);
+            border-color: rgba(148, 163, 184, 0.55);
+        }
+
+        .nav-item.active {
+            color: var(--text);
+            background: radial-gradient(circle at left, rgba(34, 197, 94, 0.65), rgba(21, 128, 61, 0.18));
+            border-color: rgba(34, 197, 94, 0.85);
+            box-shadow: 0 12px 36px rgba(16, 185, 129, 0.55);
+        }
+
+        .nav-item-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-icon-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.8);
+        }
+
+        .nav-item.active .nav-icon-dot {
+            background: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
+        }
+
+        .nav-item-pill {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.6);
+        }
+
+        .nav-item.active .nav-item-pill {
+            background: rgba(15, 23, 42, 0.95);
+            border-color: rgba(21, 128, 61, 0.85);
+            color: #bbf7d0;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            background: radial-gradient(circle at left, rgba(56, 189, 248, 0.25), rgba(15, 23, 42, 0.9));
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: #38bdf8;
+        }
+
+        .content {
+            padding: 16px 18px 18px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .banner {
+            border-radius: var(--radius-lg);
+            padding: 14px 14px 13px;
+            background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.22), rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(34, 197, 94, 0.55);
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2.3fr);
+            gap: 8px 16px;
+            align-items: center;
+        }
+
+        .banner-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .banner-sub {
+            font-size: 12px;
+            color: #d1fae5;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(187, 247, 208, 0.7);
+            background: rgba(15, 23, 42, 0.7);
+            color: #bbf7d0;
+        }
+
+        .banner-right {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .banner-meter {
+            width: 100%;
+            max-width: 260px;
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .banner-meter-fill {
+            position: absolute;
+            inset: 0;
+            width: 55%;
+            background: linear-gradient(90deg, #22c55e, #a3e635);
+            box-shadow: 0 0 18px rgba(34, 197, 94, 0.8);
+        }
+
+        .tabs {
+            display: inline-flex;
+            padding: 3px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            gap: 3px;
+        }
+
+        .tab-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            color: var(--muted);
+            background: transparent;
+            cursor: pointer;
+            transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: radial-gradient(circle at top, rgba(34, 197, 94, 0.65), rgba(15, 23, 42, 0.9));
+            color: #ecfdf5;
+            box-shadow: 0 10px 26px rgba(16, 185, 129, 0.55);
+            transform: translateY(-0.5px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(0, 2fr);
+            gap: 12px;
+        }
+
+        .card {
+            background: linear-gradient(155deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            padding: 11px 12px 10px;
+            box-shadow: var(--shadow-soft-sm);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .card-subtitle {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .stat-row {
+            display: flex;
+            gap: 7px;
+            margin-top: 7px;
+        }
+
+        .stat-pill {
+            flex: 1;
+            border-radius: 12px;
+            padding: 7px 9px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.18), rgba(15, 23, 42, 0.96));
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .stat-chip-row {
+            margin-top: 6px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .stat-chip {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            background: rgba(22, 163, 74, 0.1);
+            color: #bbf7d0;
+        }
+
+        .list {
+            margin-top: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 230px;
+            overflow: auto;
+        }
+
+        .list-item {
+            border-radius: 11px;
+            padding: 7px 8px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(31, 41, 55, 0.85);
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: 4px 10px;
+            font-size: 11px;
+        }
+
+        .list-item-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .list-title {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .list-meta {
+            color: var(--muted);
+        }
+
+        .list-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .pill-soft {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(55, 65, 81, 0.95);
+            color: var(--muted);
+        }
+
+        .pill-soft-green {
+            border-color: rgba(34, 197, 94, 0.6);
+            color: #bbf7d0;
+        }
+
+        .pill-soft-amber {
+            border-color: rgba(234, 179, 8, 0.7);
+            color: #fef9c3;
+        }
+
+        .pill-soft-sky {
+            border-color: rgba(56, 189, 248, 0.7);
+            color: #e0f2fe;
+        }
+
+        .pill-soft-red {
+            border-color: rgba(248, 113, 113, 0.7);
+            color: #fee2e2;
+        }
+
+        .upload-form {
+            margin-top: 8px;
+            padding: 7px 8px;
+            border-radius: 11px;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px dashed rgba(55, 65, 81, 0.9);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .upload-input {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .upload-input input {
+            width: 100%;
+            padding: 5px 7px;
+            border-radius: 8px;
+            background: #020617;
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            color: var(--text);
+            font-size: 11px;
+        }
+
+        .upload-input input[type="file"] {
+            padding: 3px;
+        }
+
+        .upload-meta {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .alert {
+            margin-top: 8px;
+            padding: 7px 9px;
+            border-radius: 11px;
+            font-size: 11px;
+            display: flex;
+            align-items: flex-start;
+            gap: 7px;
+        }
+
+        .alert-success {
+            background: var(--accent-soft);
+            border: 1px solid rgba(34, 197, 94, 0.7);
+            color: #bbf7d0;
+        }
+
+        .alert-danger {
+            background: var(--danger-soft);
+            border: 1px solid rgba(248, 113, 113, 0.8);
+            color: #fee2e2;
+        }
+
+        .alert-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            margin-top: 2px;
+        }
+
+        .alert-success .alert-dot {
+            background: #22c55e;
+        }
+
+        .alert-danger .alert-dot {
+            background: #f97373;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .empty-state {
+            padding: 10px;
+            border-radius: 11px;
+            border: 1px dashed rgba(55, 65, 81, 0.85);
+            text-align: center;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            padding: 3px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.65);
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .tag-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+        }
+
+        .tag-dot.green {
+            background: #22c55e;
+        }
+
+        .tag-dot.red {
+            background: #f97373;
+        }
+
+        .login-panel {
+            margin-top: 8px;
+            border-radius: var(--radius-lg);
+            padding: 12px 13px;
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.26), rgba(15, 23, 42, 0.96));
+            border: 1px solid rgba(56, 189, 248, 0.7);
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: 10px 18px;
+            align-items: center;
+        }
+
+        .login-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .login-sub {
+            font-size: 12px;
+            color: #e0f2fe;
+        }
+
+        .login-step-list {
+            font-size: 11px;
+            margin-top: 8px;
+            padding-left: 16px;
+            color: #bae6fd;
+        }
+
+        .login-card {
+            border-radius: 14px;
+            padding: 10px 11px;
+            background: rgba(15, 23, 42, 0.97);
+            border: 1px solid rgba(30, 64, 175, 0.85);
+            font-size: 11px;
+        }
+
+        .login-label {
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 3px;
+        }
+
+        .login-value {
+            font-size: 11px;
+            color: #e5e7eb;
+        }
+
+        a {
+            color: #38bdf8;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 960px) {
+            .app-shell {
+                margin: 10px;
+            }
+
+            .app-main {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .sidebar {
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 10px;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .app-main {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 780px) {
+            .banner {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .banner-right {
+                align-items: flex-start;
+            }
+
+            .login-panel {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-logo"></div>
+            <div>
+                <div class="brand-text-main">EduAgent Platform</div>
+                <div class="brand-text-sub">COURSES · STUDENTS · TEACHERS</div>
+            </div>
+        </div>
+        <div class="user-summary">
+            <div id="user-role-tag" class="user-role-tag hidden"></div>
+            <div id="user-pill" class="user-pill hidden">
+                <div class="user-pill-dot"></div>
+                <span id="user-name"></span>
+            </div>
+            <button id="logout-btn" class="btn btn-sm btn-danger btn-pill hidden">
+                <span>Chiqish</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-section-title">Bo'limlar</div>
+                <div class="nav-group">
+                    <button class="nav-item active" data-section="dashboard">
+                        <div class="nav-item-label">
+                            <span class="nav-icon-dot"></span>
+                            <span>Dashboard</span>
+                        </div>
+                        <span class="nav-item-pill">Umumiy</span>
+                    </button>
+                    <button class="nav-item" data-section="videos">
+                        <div class="nav-item-label">
+                            <span class="nav-icon-dot"></span>
+                            <span>Video darslar</span>
+                        </div>
+                        <span class="nav-item-pill">Student</span>
+                    </button>
+                    <button class="nav-item" data-section="tasks">
+                        <div class="nav-item-label">
+                            <span class="nav-icon-dot"></span>
+                            <span>Vazifalar</span>
+                        </div>
+                        <span class="nav-item-pill">Holati</span>
+                    </button>
+                    <button class="nav-item" data-section="group">
+                        <div class="nav-item-label">
+                            <span class="nav-icon-dot"></span>
+                            <span>Guruh</span>
+                        </div>
+                        <span class="nav-item-pill">Ma'lumot</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span id="auth-status-text">Holat: aniqlanmoqda...</span>
+                </div>
+                <div style="font-size: 10px;">
+                    Backend API: <span class="muted">DRF · Swagger</span><br>
+                    <span class="muted">Frontend: bitta template, JS orqali API chaqiruvlar</span>
+                </div>
+            </div>
+        </aside>
+
+        <section class="content">
+            <section class="banner">
+                <div>
+                    <div class="banner-title" id="banner-title">
+                        Xush kelibsiz, talaba!
+                    </div>
+                    <div class="banner-sub" id="banner-sub">
+                        Telegram orqali tizimga kirib, video darslar va vazifalarni bir joyda boshqaring.
+                    </div>
+                    <div class="badge-row">
+                        <span class="badge">Session Authentication</span>
+                        <span class="badge">Telegram Login</span>
+                        <span class="badge">DRF API</span>
+                    </div>
+                </div>
+                <div class="banner-right">
+                    <div class="banner-meter">
+                        <div class="banner-meter-fill" id="progress-fill"></div>
+                    </div>
+                    <div style="font-size: 11px; color: var(--muted);">
+                        <span id="progress-label">Vazifalar statistikasi: 0 / 0</span>
+                    </div>
+                    <div>
+                        <div class="tabs">
+                            <button class="tab-btn active" data-section="dashboard">Dashboard</button>
+                            <button class="tab-btn" data-section="videos">Darslar</button>
+                            <button class="tab-btn" data-section="tasks">Vazifalar</button>
+                            <button class="tab-btn" data-section="group">Guruh</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="login-section" class="login-panel hidden">
+                <div>
+                    <div class="login-title">Telegram orqali tizimga kiring</div>
+                    <div class="login-sub">
+                        Avval Telegram bot orqali login qiling, so'ngra shu sahifaga qaytganingizda profil va video darslar avtomatik yuklanadi.
+                    </div>
+                    <ol class="login-step-list">
+                        <li>Telegram botga o'ting va telefon raqamingiz bilan tasdiqlang.</li>
+                        <li>Bot sizga maxsus link yuboradi (kod bilan).</li>
+                        <li>O'sha link brauzerda ochiladi va siz shu saytga qaytasiz.</li>
+                        <li>Keyin bu sahifa avtomatik ravishda sizni <strong>student</strong> sifatida tanib oladi.</li>
+                    </ol>
+                </div>
+                <div>
+                    <div class="login-card">
+                        <div class="login-label">Telegram bot manzili</div>
+                        <div class="login-value">
+                            <!-- Bu yerga o'zingizni bot linkingizni qo'yishingiz mumkin -->
+                            <a id="telegram-bot-link" href="#" target="_blank" rel="noreferrer">
+                                @sizning_eduagent_bot
+                            </a>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <div class="login-label">Izoh</div>
+                            <div class="login-value">
+                                Backendda <code>telegram_callback</code> view mavjud. Bot sizni
+                                <code>/api/course/auth/telegram/callback/</code> manziliga
+                                <code>?token=...&code=...</code> bilan yuboradi va ushbu sahifaga
+                                <strong>home</strong> URL orqali qaytaradi.
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; display:flex; gap:6px; flex-wrap:wrap;">
+                            <button id="refresh-auth-btn" class="btn btn-sm btn-outlined btn-pill">
+                                Holatni yangilash
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="app-section">
+                <div id="dashboard-section">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Profil ma'lumotlari</div>
+                                    <div class="card-subtitle">Student / foydalanuvchi haqida qisqacha</div>
+                                </div>
+                                <span class="tag">
+                                    <span class="tag-dot green"></span>
+                                    <span>Session</span>
+                                </span>
+                            </div>
+                            <div style="margin-top: 6px; font-size: 11px;">
+                                <div><span class="muted">F.I.Sh:</span> <span id="profile-full-name">—</span></div>
+                                <div><span class="muted">Telefon:</span> <span id="profile-phone">—</span></div>
+                                <div><span class="muted">Rol:</span> <span id="profile-role">—</span></div>
+                                <div><span class="muted">Guruh:</span> <span id="profile-group">—</span></div>
+                                <div><span class="muted">Kurs:</span> <span id="profile-course">—</span></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Vazifalar statistikasi</div>
+                                    <div class="card-subtitle">Yuborilgan va tekshirilgan vazifalar</div>
+                                </div>
+                                <span class="tag">
+                                    <span class="tag-dot green"></span>
+                                    <span>Real-time yangilash</span>
+                                </span>
+                            </div>
+                            <div class="stat-row">
+                                <div class="stat-pill">
+                                    <div class="stat-label">Jami vazifalar</div>
+                                    <div class="stat-value" id="stat-total-tasks">0</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="stat-label">Tekshirilgan</div>
+                                    <div class="stat-value" id="stat-reviewed-tasks">0</div>
+                                </div>
+                                <div class="stat-pill">
+                                    <div class="stat-label">Kutilayotgan</div>
+                                    <div class="stat-value" id="stat-pending-tasks">0</div>
+                                </div>
+                            </div>
+                            <div class="stat-chip-row">
+                                <span class="stat-chip" id="stat-average-score">O'rtacha baho: —</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">So‘nggi video darslar</div>
+                                <div class="card-subtitle">Guruhingiz uchun oxirgi qo'shilgan darslar</div>
+                            </div>
+                        </div>
+                        <div class="list" id="recent-videos-list"></div>
+                        <div id="recent-videos-empty" class="empty-state hidden">
+                            Video darslar topilmadi. Guruhingizga video biriktirilmagan bo'lishi mumkin.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="videos-section" class="hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Video darslar ro'yxati</div>
+                                <div class="card-subtitle">/api/student/videos/ orqali yuklanadi</div>
+                            </div>
+                            <span class="tag">
+                                <span class="tag-dot green"></span>
+                                <span>GET only</span>
+                            </span>
+                        </div>
+                        <div class="list" id="videos-list"></div>
+                        <div id="videos-empty" class="empty-state hidden">
+                            Siz uchun video darslar topilmadi.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Tanlangan video uchun vazifa yuborish</div>
+                                <div class="card-subtitle">Fayl yuborish /api/student/submit-task/&lt;video_id&gt;/ orqali</div>
+                            </div>
+                            <span class="tag">
+                                <span class="tag-dot green"></span>
+                                <span>POST</span>
+                            </span>
+                        </div>
+                        <div class="upload-form">
+                            <div class="upload-input">
+                                <label class="upload-meta">Video dars ID</label>
+                                <input type="number" id="task-video-id" placeholder="Masalan: 1">
+                            </div>
+                            <div class="upload-input">
+                                <label class="upload-meta">Fayl (image/video)</label>
+                                <input type="file" id="task-file">
+                            </div>
+                            <div>
+                                <button id="upload-task-btn" class="btn btn-primary btn-pill btn-sm">
+                                    Vazifani yuborish
+                                </button>
+                            </div>
+                        </div>
+                        <div class="upload-meta" style="margin-top:6px;">
+                            Eslatma: Student backenddagi <code>SubmitTaskView</code> orqali vazifa yuboradi.
+                        </div>
+                        <div id="upload-alert" class="alert hidden">
+                            <div class="alert-dot"></div>
+                            <div id="upload-alert-text"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tasks-section" class="hidden">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Mening vazifalarim</div>
+                                    <div class="card-subtitle">/api/student/tasks/ orqali</div>
+                                </div>
+                                <span class="tag">
+                                    <span class="tag-dot green"></span>
+                                    <span>GET</span>
+                                </span>
+                            </div>
+                            <div class="list" id="tasks-list"></div>
+                            <div id="tasks-empty" class="empty-state hidden">
+                                Hozircha yuklangan vazifalar topilmadi.
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Vazifalar holati</div>
+                                    <div class="card-subtitle">Yuklangan va tekshirilgan vazifalar bo'limi</div>
+                                </div>
+                            </div>
+                            <div class="list" id="pending-tasks-list"></div>
+                            <div id="pending-tasks-empty" class="empty-state hidden">
+                                Kutilayotgan vazifalar topilmadi.
+                            </div>
+                            <hr style="border:none; border-top:1px dashed rgba(55,65,81,0.9); margin:8px 0;">
+                            <div class="list" id="reviewed-tasks-list"></div>
+                            <div id="reviewed-tasks-empty" class="empty-state hidden">
+                                Tekshirilgan vazifalar topilmadi.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="group-section" class="hidden">
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Guruh ma'lumotlari</div>
+                                    <div class="card-subtitle">/api/student/group-info/ orqali yuklanadi</div>
+                                </div>
+                                <span class="tag">
+                                    <span class="tag-dot.green"></span>
+                                    <span>Student</span>
+                                </span>
+                            </div>
+                            <div style="font-size: 11px; margin-top: 6px;">
+                                <div><span class="muted">Guruh nomi:</span> <span id="group-name">—</span></div>
+                                <div><span class="muted">Kurs:</span> <span id="group-course">—</span></div>
+                                <div><span class="muted">Katta ustoz:</span> <span id="group-main-teacher">—</span></div>
+                                <div><span class="muted">Yordamchi ustoz(lar):</span> <span id="group-assistants">—</span></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Guruhdoshlar</div>
+                                    <div class="card-subtitle">Siz bilan bir guruhdagi talabalar ro'yxati</div>
+                                </div>
+                            </div>
+                            <div class="list" id="classmates-list"></div>
+                            <div id="classmates-empty" class="empty-state hidden">
+                                Guruhdoshlar topilmadi yoki siz hali guruhga biriktirilmagansiz.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<script>
+    function getCookie(name) {
+        if (!document.cookie) return null;
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                return decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+        return null;
+    }
+
+    function apiFetch(url, options = {}) {
+        const opts = Object.assign({headers: {}}, options);
+        opts.headers['Accept'] = 'application/json';
+
+        if (!opts.method || opts.method.toUpperCase() === 'GET') {
+        } else {
+            if (!(opts.body instanceof FormData)) {
+                opts.headers['Content-Type'] = 'application/json';
+            }
+            const csrftoken = getCookie('csrftoken');
+            if (csrftoken) {
+                opts.headers['X-CSRFToken'] = csrftoken;
+            }
+        }
+
+        return fetch(url, opts).then(async (res) => {
+            const text = await res.text();
+            let data = null;
+            try {
+                data = text ? JSON.parse(text) : null;
+            } catch (e) {
+                data = text;
+            }
+            if (!res.ok) {
+                const error = new Error('API error');
+                error.status = res.status;
+                error.data = data;
+                throw error;
+            }
+            return data;
+        });
+    }
+
+    const state = {
+        authenticated: false,
+        user: null,
+        dashboard: null,
+        videos: [],
+        tasks: [],
+        pendingTasks: [],
+        reviewedTasks: [],
+        groupInfo: null,
+    };
+
+    const els = {
+        authStatusText: document.getElementById('auth-status-text'),
+        userPill: document.getElementById('user-pill'),
+        userName: document.getElementById('user-name'),
+        userRoleTag: document.getElementById('user-role-tag'),
+        logoutBtn: document.getElementById('logout-btn'),
+        loginSection: document.getElementById('login-section'),
+        appSection: document.getElementById('app-section'),
+        refreshAuthBtn: document.getElementById('refresh-auth-btn'),
+        bannerTitle: document.getElementById('banner-title'),
+        bannerSub: document.getElementById('banner-sub'),
+        progressFill: document.getElementById('progress-fill'),
+        progressLabel: document.getElementById('progress-label'),
+        profileFullName: document.getElementById('profile-full-name'),
+        profilePhone: document.getElementById('profile-phone'),
+        profileRole: document.getElementById('profile-role'),
+        profileGroup: document.getElementById('profile-group'),
+        profileCourse: document.getElementById('profile-course'),
+        statTotalTasks: document.getElementById('stat-total-tasks'),
+        statReviewedTasks: document.getElementById('stat-reviewed-tasks'),
+        statPendingTasks: document.getElementById('stat-pending-tasks'),
+        statAverageScore: document.getElementById('stat-average-score'),
+        recentVideosList: document.getElementById('recent-videos-list'),
+        recentVideosEmpty: document.getElementById('recent-videos-empty'),
+        videosList: document.getElementById('videos-list'),
+        videosEmpty: document.getElementById('videos-empty'),
+        taskVideoId: document.getElementById('task-video-id'),
+        taskFile: document.getElementById('task-file'),
+        uploadTaskBtn: document.getElementById('upload-task-btn'),
+        uploadAlert: document.getElementById('upload-alert'),
+        uploadAlertText: document.getElementById('upload-alert-text'),
+        tasksList: document.getElementById('tasks-list'),
+        tasksEmpty: document.getElementById('tasks-empty'),
+        pendingTasksList: document.getElementById('pending-tasks-list'),
+        pendingTasksEmpty: document.getElementById('pending-tasks-empty'),
+        reviewedTasksList: document.getElementById('reviewed-tasks-list'),
+        reviewedTasksEmpty: document.getElementById('reviewed-tasks-empty'),
+        groupName: document.getElementById('group-name'),
+        groupCourse: document.getElementById('group-course'),
+        groupMainTeacher: document.getElementById('group-main-teacher'),
+        groupAssistants: document.getElementById('group-assistants'),
+        classmatesList: document.getElementById('classmates-list'),
+        classmatesEmpty: document.getElementById('classmates-empty'),
+        sections: {
+            dashboard: document.getElementById('dashboard-section'),
+            videos: document.getElementById('videos-section'),
+            tasks: document.getElementById('tasks-section'),
+            group: document.getElementById('group-section'),
+        }
+    };
+
+    function setAuthUI(authenticated, user) {
+        state.authenticated = authenticated;
+        state.user = user || null;
+
+        if (authenticated && user) {
+            els.authStatusText.textContent = 'Holat: tizimga kirgan';
+            els.userPill.classList.remove('hidden');
+            els.userName.textContent = (user.first_name || user.username || 'Foydalanuvchi') +
+                (user.last_name ? (' ' + user.last_name) : '');
+            els.logoutBtn.classList.remove('hidden');
+
+            if (user.role) {
+                els.userRoleTag.textContent = 'Rol: ' + user.role;
+                els.userRoleTag.classList.remove('hidden');
+            } else {
+                els.userRoleTag.classList.add('hidden');
+            }
+
+            els.loginSection.classList.add('hidden');
+            els.appSection.classList.remove('hidden');
+            els.bannerTitle.textContent = 'Xush kelibsiz, ' + (user.first_name || 'talaba') + '!';
+            els.bannerSub.textContent = 'Video darslar va vazifalar bo‘limiga o‘ting va o‘qishni davom ettiring.';
+        } else {
+            els.authStatusText.textContent = 'Holat: tizimga kirmagan';
+            els.userPill.classList.add('hidden');
+            els.logoutBtn.classList.add('hidden');
+            els.userRoleTag.classList.add('hidden');
+            els.loginSection.classList.remove('hidden');
+            els.appSection.classList.add('hidden');
+            els.bannerTitle.textContent = "Xush kelibsiz, talaba!";
+            els.bannerSub.textContent = "Telegram orqali tizimga kirib, video darslar va vazifalarni bir joyda boshqaring.";
+        }
+    }
+
+    function renderDashboard() {
+        const data = state.dashboard;
+        if (!data) return;
+
+        els.profileFullName.textContent = (data.student && data.student.full_name) || '—';
+        els.profileGroup.textContent = (data.student && data.student.group) || '—';
+        els.profileCourse.textContent = (data.student && data.student.course) || '—';
+        els.profileRole.textContent = (state.user && state.user.role) || 'student';
+        els.profilePhone.textContent = (state.user && state.user.phone_number) || '—';
+
+        els.statTotalTasks.textContent = data.statistics.total_tasks ?? 0;
+        els.statReviewedTasks.textContent = data.statistics.reviewed_tasks ?? 0;
+        els.statPendingTasks.textContent = data.statistics.pending_tasks ?? 0;
+
+        if (data.statistics.average_score != null) {
+            els.statAverageScore.textContent = "O'rtacha baho: " + data.statistics.average_score.toFixed(2);
+        } else {
+            els.statAverageScore.textContent = "O'rtacha baho: —";
+        }
+
+        const total = data.statistics.total_tasks || 0;
+        const reviewed = data.statistics.reviewed_tasks || 0;
+        const percent = total > 0 ? Math.round((reviewed / total) * 100) : 0;
+        els.progressFill.style.width = Math.min(Math.max(percent, 5), 100) + '%';
+        els.progressLabel.textContent = `Vazifalar statistikasi: ${reviewed} / ${total} ( ${percent}% )`;
+
+        const list = data.recent_videos || [];
+        els.recentVideosList.innerHTML = '';
+        if (!list.length) {
+            els.recentVideosEmpty.classList.remove('hidden');
+        } else {
+            els.recentVideosEmpty.classList.add('hidden');
+            list.forEach(v => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-main">
+                        <div class="list-title">${v.title || 'Video dars'}</div>
+                        <div class="list-meta">${v.description ? v.description.substring(0, 80) : '—'}</div>
+                    </div>
+                    <div class="list-badges">
+                        <span class="pill-soft pill-soft-green">ID: ${v.id}</span>
+                        ${v.course ? `<span class="pill-soft pill-soft-sky">Kurs: ${v.course}</span>` : ''}
+                        ${v.group ? `<span class="pill-soft pill-soft-amber">Guruh: ${v.group}</span>` : ''}
+                    </div>
+                `;
+                els.recentVideosList.appendChild(item);
+            });
+        }
+    }
+
+    function renderVideos() {
+        const list = state.videos || [];
+        els.videosList.innerHTML = '';
+        if (!list.length) {
+            els.videosEmpty.classList.remove('hidden');
+            return;
+        }
+        els.videosEmpty.classList.add('hidden');
+        list.forEach(v => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            item.innerHTML = `
+                <div class="list-item-main">
+                    <div class="list-title">${v.title || 'Video dars'}</div>
+                    <div class="list-meta">${v.description ? v.description.substring(0, 80) : '—'}</div>
+                </div>
+                <div class="list-badges">
+                    <span class="pill-soft pill-soft-green">ID: ${v.id}</span>
+                    ${v.course ? `<span class="pill-soft pill-soft-sky">Kurs: ${v.course}</span>` : ''}
+                    ${v.group ? `<span class="pill-soft pill-soft-amber">Guruh: ${v.group}</span>` : ''}
+                </div>
+            `;
+            item.addEventListener('click', () => {
+                els.taskVideoId.value = v.id;
+            });
+            els.videosList.appendChild(item);
+        });
+    }
+
+    function renderTasks() {
+        const tasks = state.tasks || [];
+        els.tasksList.innerHTML = '';
+        if (!tasks.length) {
+            els.tasksEmpty.classList.remove('hidden');
+        } else {
+            els.tasksEmpty.classList.add('hidden');
+            tasks.forEach(t => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-main">
+                        <div class="list-title">Video #${t.video_lesson || '—'}</div>
+                        <div class="list-meta">Holat: ${t.status || '—'}</div>
+                    </div>
+                    <div class="list-badges">
+                        <span class="pill-soft">ID: ${t.id}</span>
+                        ${t.score != null ? `<span class="pill-soft pill-soft-green">Baho: ${t.score}</span>` : ''}
+                    </div>
+                `;
+                els.tasksList.appendChild(item);
+            });
+        }
+
+        const pending = state.pendingTasks || [];
+        els.pendingTasksList.innerHTML = '';
+        if (!pending.length) {
+            els.pendingTasksEmpty.classList.remove('hidden');
+        } else {
+            els.pendingTasksEmpty.classList.add('hidden');
+            pending.forEach(t => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-main">
+                        <div class="list-title">Video #${t.video_lesson || '—'}</div>
+                        <div class="list-meta">Holat: ${t.status || 'yuklandi'}</div>
+                    </div>
+                    <div class="list-badges">
+                        <span class="pill-soft pill-soft-amber">Yangi</span>
+                    </div>
+                `;
+                els.pendingTasksList.appendChild(item);
+            });
+        }
+
+        const reviewed = state.reviewedTasks || [];
+        els.reviewedTasksList.innerHTML = '';
+        if (!reviewed.length) {
+            els.reviewedTasksEmpty.classList.remove('hidden');
+        } else {
+            els.reviewedTasksEmpty.classList.add('hidden');
+            reviewed.forEach(t => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-main">
+                        <div class="list-title">Video #${t.video_lesson || '—'}</div>
+                        <div class="list-meta">Holat: ${t.status || 'tekshirildi'}</div>
+                    </div>
+                    <div class="list-badges">
+                        <span class="pill-soft pill-soft-green">Baho: ${t.score ?? '—'}</span>
+                    </div>
+                `;
+                els.reviewedTasksList.appendChild(item);
+            });
+        }
+    }
+
+    function renderGroup() {
+        const info = state.groupInfo;
+        if (!info || !info.group) {
+            els.groupName.textContent = '—';
+            els.groupCourse.textContent = '—';
+            els.groupMainTeacher.textContent = '—';
+            els.groupAssistants.textContent = '—';
+            els.classmatesList.innerHTML = '';
+            els.classmatesEmpty.classList.remove('hidden');
+            return;
+        }
+
+        els.groupName.textContent = info.group.name || '—';
+        els.groupCourse.textContent = info.group.course || '—';
+        els.groupMainTeacher.textContent = info.group.main_teacher || '—';
+        els.groupAssistants.textContent = (info.group.assistant_teachers || []).join(', ') || '—';
+
+        const classmates = info.classmates || [];
+        els.classmatesList.innerHTML = '';
+        if (!classmates.length) {
+            els.classmatesEmpty.classList.remove('hidden');
+        } else {
+            els.classmatesEmpty.classList.add('hidden');
+            classmates.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-main">
+                        <div class="list-title">${c.full_name || '—'}</div>
+                        <div class="list-meta">ID: ${c.id}</div>
+                    </div>
+                    <div class="list-badges">
+                        <span class="pill-soft pill-soft-sky">Guruhdosh</span>
+                    </div>
+                `;
+                els.classmatesList.appendChild(item);
+            });
+        }
+    }
+
+    function showSection(section) {
+        Object.keys(els.sections).forEach(key => {
+            if (key === section) {
+                els.sections[key].classList.remove('hidden');
+            } else {
+                els.sections[key].classList.add('hidden');
+            }
+        });
+
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            if (btn.getAttribute('data-section') === section) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.getAttribute('data-section') === section) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    async function loadAllData() {
+        if (!state.authenticated) return;
+        try {
+            const [dashboard, videos, tasks, pending, reviewed, groupInfo] = await Promise.all([
+                apiFetch('/api/student/dashboard/'),
+                apiFetch('/api/student/videos/'),
+                apiFetch('/api/student/tasks/'),
+                apiFetch('/api/student/tasks/pending/'),
+                apiFetch('/api/student/tasks/reviewed/'),
+                apiFetch('/api/student/group-info/')
+            ]);
+
+            state.dashboard = dashboard;
+            state.videos = Array.isArray(videos) ? videos : (videos.results || []);
+            state.tasks = Array.isArray(tasks) ? tasks : (tasks.results || []);
+            state.pendingTasks = Array.isArray(pending) ? pending : (pending.results || []);
+            state.reviewedTasks = Array.isArray(reviewed) ? reviewed : (reviewed.results || []);
+            state.groupInfo = groupInfo;
+
+            renderDashboard();
+            renderVideos();
+            renderTasks();
+            renderGroup();
+        } catch (e) {
+            console.error('Data load error', e);
+        }
+    }
+
+    async function checkAuth() {
+        try {
+            const data = await apiFetch('/api/account/check-auth/');
+            if (data.authenticated) {
+                setAuthUI(true, data.user);
+                await loadAllData();
+            } else {
+                setAuthUI(false, null);
+            }
+        } catch (e) {
+            console.error('Auth check failed', e);
+            setAuthUI(false, null);
+        }
+    }
+
+    async function logout() {
+        try {
+            await apiFetch('/api/account/logout/', {method: 'POST'});
+        } catch (e) {
+        } finally {
+            setAuthUI(false, null);
+        }
+    }
+
+    async function uploadTask() {
+        const videoId = els.taskVideoId.value.trim();
+        const file = els.taskFile.files[0];
+        if (!videoId || !file) {
+            showUploadAlert('Iltimos, video ID va fayl tanlang.', false);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const url = `/api/student/submit-task/${encodeURIComponent(videoId)}/`;
+            const csrftoken = getCookie('csrftoken');
+            const res = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: csrftoken ? {'X-CSRFToken': csrftoken} : {}
+            });
+            const text = await res.text();
+            let data = null;
+            try {
+                data = text ? JSON.parse(text) : null;
+            } catch (e) {
+                data = text;
+            }
+            if (!res.ok) {
+                throw {status: res.status, data};
+            }
+            showUploadAlert('Vazifa muvaffaqiyatli yuborildi.', true);
+            await loadAllData();
+        } catch (e) {
+            let msg = 'Vazifani yuborishda xatolik yuz berdi.';
+            if (e.data && typeof e.data === 'object') {
+                msg += ' ' + JSON.stringify(e.data);
+            }
+            showUploadAlert(msg, false);
+        }
+    }
+
+    function showUploadAlert(message, success) {
+        els.uploadAlert.classList.remove('hidden', 'alert-success', 'alert-danger');
+        els.uploadAlert.classList.add(success ? 'alert-success' : 'alert-danger');
+        els.uploadAlertText.textContent = message;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const section = btn.getAttribute('data-section');
+                showSection(section);
+            });
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const section = btn.getAttribute('data-section');
+                showSection(section);
+            });
+        });
+
+        els.logoutBtn.addEventListener('click', logout);
+        els.refreshAuthBtn.addEventListener('click', checkAuth);
+        els.uploadTaskBtn.addEventListener('click', uploadTask);
+
+        checkAuth();
+    });
+</script>
+</body>
+</html>
+
+

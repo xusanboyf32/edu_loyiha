@@ -21,9 +21,10 @@ router.register(r'video-lessons', VideoLessonViewSet, basename='videolesson')
 router.register(r'tasks', TaskViewSet, basename='task')
 router.register(r'notion', NotionURLViewSet,basename='notionurl')
 router.register(r'comment',TeacherCommentViewSet, basename='comment')
+router.register(r'kinescope', KnescopeVideoUrlViewSet, basename='kinescopeurl')
 
 
-from authentication.views import telegram_callback
+from .authentication.views import telegram_callback
 
 # ------------------ URL patterns ------------------
 urlpatterns = [
