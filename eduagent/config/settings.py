@@ -167,7 +167,11 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # BOT
-TELEGRAM_BOT_TOKEN=os.environ.get("TELEGRAM_BOT_TOKEN")
+# Telegram Bot Settings
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")  # You already have this
+TELEGRAM_BOT_USERNAME = os.environ.get("TELEGRAM_BOT_TOKEN")  # Your bot's username without @
+TELEGRAM_BOT_ID = os.environ.get("TELEGRAM_BOT_ID")  # Your bot's numeric ID
+TELEGRAM_LOGIN_REDIRECT_URL = 'home'  # Where to redirect after login
 
 
 MEDIA_URL = '/media/'

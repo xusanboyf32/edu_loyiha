@@ -1,63 +1,21 @@
-# """
-# URL configuration for config project.
-#
-# The `urlpatterns` list routes URLs to views. For more information please see:
-#     https://docs.djangoproject.com/en/5.2/topics/http/urls/
-# Examples:
-# Function views
-#     1. Add an import:  from my_app import views
-#     2. Add a URL to urlpatterns:  path('', views.home, name='home')
-# Class-based views
-#     1. Add an import:  from other_app.views import Home
-#     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-# Including another URLconf
-#     1. Import the include() function: from django.urls import include, path
-#     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-# """
-# from django.contrib import admin
-# from django.urls import path, include, re_path
-# from rest_framework import permissions
-# from drf_yasg.views import get_schema_view
-# from drf_yasg import openapi
-#
-#
-# # swagger ui da korinishida chiqarish
-#
-# schema_view = get_schema_view(
-#     openapi.Info(
-#         title="API Documentation",
-#         default_version='v1',
-#         description="Bizning API Swagger docs",
-#
-#     ),
-#     public=True,
-#     permission_classes=[permissions.AllowAny]
-# )
-#
-# urlpatterns = [
-#     path('admin/', admin.site.urls),
-#
-#
-#     # Swagger/ redoc
-#     re_path(r"^swagger(?P<format>\.json|\.yaml)$", schema_view.without_ui(cache_timeout=0), name="schema-json"),
-#     path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
-#     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
-#
-#
-# ]
-
-
-
-# ---------------------------------------------------------------------
-
-
 from django.contrib import admin
-from django.urls import path, include
+from authentication.views import telegram_login, telegram_callback, login_view
+from django.urls import path, include, re_path
+from django.conf import settings as django_settings
+from django.conf.urls.static import static
+from django.views.generic import TemplateView
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from eduagent import views
+from eduagent.views import (
+    home, courses, students, video_lessons, 
+    profile, settings_view, quests, quest_create,
+    student_detail, student_edit, student_delete,
+    course_detail, course_edit, course_delete
+)
 
-# ---------------- Swagger sozlamalari ----------------
+# Swagger/OpenAPI configuration
 schema_view = get_schema_view(
     openapi.Info(
         title="Education Platform API",
@@ -68,30 +26,52 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
-# ---------------- Asosiy URL Config ------------------
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    # Authentication (masalan JWT yoki DRF auth)
+    
+    # Authentication
+    path('login/', login_view, name='login'),
+    
+    # Main pages
+    path('', home, name='index'),
+    path('dashboard/', home, name='dashboard'),
+    path('profile/', profile, name='profile'),
+    path('courses/', courses, name='courses'),
+    path('students/', students, name='students'),
+    path('video-lessons/', video_lessons, name='video_lessons'),
+    path('settings/', settings_view, name='settings'),
+    
+    # Quests
+    path('quests/', quests, name='quests'),
+    path('quests/create/', quest_create, name='quest_create'),
+    
+    # API
+    path('api/auth/', include('authentication.urls')),
     path('api/auth/', include('rest_framework.urls')),
-
-    # COURSE app uchun API
+    
+    # Course API
     path('api/course/', include(('course.urls', 'course'), namespace='course')),
-
-    # STUDENT app uchun API
+    
+    # Course management
+    path('courses/<int:course_id>/', course_detail, name='course_detail'),
+    path('courses/<int:course_id>/edit/', course_edit, name='course_edit'),
+    path('courses/<int:course_id>/delete/', course_delete, name='course_delete'),
+    
+    # Student Management
+    path('students/<int:pk>/', student_detail, name='student_detail'),
+    path('students/<int:pk>/edit/', student_edit, name='student_edit'),
+    path('students/<int:pk>/delete/', student_delete, name='student_delete'),
+    
+    # Student API
     path('api/student/', include(('student.urls', 'student'), namespace='student')),
-
-    # Swagger
-    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    
+    # API Documentation
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('auth/telegram/login/', telegram_login, name='telegram_login'),
+    path('auth/telegram/callback/', telegram_callback, name='telegram_callback'),
 ]
 
-
-# media yuklangan media chiqishi uchun
-from django.conf import settings
-from django.conf.urls.static import static
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
+# Media files in development
+if django_settings.DEBUG:
+    urlpatterns += static(django_settings.MEDIA_URL, document_root=django_settings.MEDIA_ROOT)

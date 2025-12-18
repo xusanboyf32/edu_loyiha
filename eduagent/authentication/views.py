@@ -1,13 +1,17 @@
-# authentication/views.py
-
+from django.shortcuts import render, redirect  # Add render here
+from django.contrib import messages
+from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
+from django.http import HttpResponse, JsonResponse
+from .models import CustomUser, TelegramAuth
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import  IsAuthenticated
-
-from .serializers import  UserSerializer
-
+from rest_framework.permissions import IsAuthenticated
+from .serializers import UserSerializer
 
 class CheckAuthView(APIView):
     """
@@ -91,6 +95,9 @@ class AdminCreateUserView(APIView):
  #  BU BOTDAN AUTH BOLISH UHCUN VIEW MODEL BN VIEW YETARLI
 # =============================================================================================
 
+from django.http import JsonResponse
+from django.contrib.auth import login as auth_login
+from django.contrib import messages
 # authentication/views.py
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -98,55 +105,141 @@ from django.contrib.auth import login as auth_login
 from django.utils import timezone
 from .models import CustomUser, TelegramAuth
 
+def telegram_callback(request):
+    # Get the auth data from Telegram
+    auth_data = request.GET.dict()
+    
+    # Verify the required parameters are present
+    required_params = ['id', 'first_name', 'auth_date', 'hash']
+    if not all(param in auth_data for param in required_params):
+        return redirect('login')
+    
+    # Here you should:
+    # 1. Verify the auth_data hash using your bot token
+    # 2. Get or create a user based on the Telegram ID
+    # 3. Log the user in
+    
+    # For now, let's just show the auth data
+    return JsonResponse(auth_data)
+
 @csrf_exempt
 def telegram_callback(request):
-    # Telegram start link GET so'rovi
-    if request.method == "GET":
-        session_token = request.GET.get("token")
-        code = request.GET.get("code")
+    if request.method == 'POST':
+        data = request.POST
+        telegram_id = data.get('id')
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+        username = data.get('username', '')
+        photo_url = data.get('photo_url', '')
 
-        if not session_token or not code:
-            return JsonResponse({"success":False,"message":"Token yoki kod topilmadi."},status=400)
         try:
-            # is_used holatini e'tiborsiz qoldiramiz, faqat token va kodni tekshiramiz
-            auth = TelegramAuth.objects.get(session_token=session_token, code=code)
-
-            if auth.is_expired:
-                return JsonResponse({"success":False,"message":"Kod muddatli o'tgan."},status=400)
-
-            # Agar allaqachon ishlatilgan bo'lsa ham , muddati tugamagan bolsa ruxsat beramiz
-            if auth.is_used:
-                print(f"[WARNING] Auth {session_token} allaqachon ishlatilgan, lekin muddati hali tugamagan")
-
-            user, created = CustomUser.objects.get_or_create(
-                phone_number=auth.phone_number,
-                defaults={'role':CustomUser.ROLE_STUDENT}  # ROLE STUDENT
-
+            # Try to get user by telegram_id
+            user = CustomUser.objects.get(telegram_id=telegram_id)
+            
+            # Update user data if it's changed
+            update_fields = []
+            if user.first_name != first_name:
+                user.first_name = first_name
+                update_fields.append('first_name')
+            if user.last_name != last_name:
+                user.last_name = last_name
+                update_fields.append('last_name')
+            if user.telegram_username != username:
+                user.telegram_username = username
+                update_fields.append('telegram_username')
+            
+            if update_fields:
+                user.save(update_fields=update_fields)
+                
+        except CustomUser.DoesNotExist:
+            # Create new user if not exists
+            user = CustomUser.objects.create_user(
+                phone_number=f'tg_{telegram_id}',  # Temporary phone number
+                first_name=first_name,
+                last_name=last_name,
+                telegram_id=telegram_id,
+                telegram_username=username,
+                is_verified=True
             )
 
-            # Telegram ma'lumotlar yangilash
-            user.telegram_id = auth.chat_id
-            user.is_verified = True
-            user.verified_at = timezone.now()
-            user.save()
+        # Log the user in
+        auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        
+        return redirect('dashboard')
+    return HttpResponse('Invalid request', status=400)
 
-            # Auth ishlatilgan deb belgilash
+@method_decorator(login_required, name='dispatch')
+class DashboardView(TemplateView):
+    template_name = 'index.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Get user's full name or Telegram username
+        full_name = f"{user.first_name or ''} {user.last_name or ''}".strip()
+        if not full_name and user.telegram_username:
+            full_name = f"@{user.telegram_username}"
+        elif not full_name:
+            full_name = "Пользователь"
+            
+        context['user'] = {
+            'full_name': full_name,
+            'telegram_username': user.telegram_username,
+            'role': user.get_role_display(),
+            'is_authenticated': user.is_authenticated
+        }
+        return context
 
-            auth.is_used = True
-            auth.save()
-
-            #Django sessionga login qilish
-            if not request.session.session_key:
-                request.session.create()
-            request.session.save()
+def login_view(request):
+    # If user is already authenticated, redirect to home
+    if request.user.is_authenticated:
+        return redirect('home')
+        
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+        password = request.POST.get('password')
+        user = authenticate(request, phone_number=phone_number, password=password)
+        
+        if user is not None:
             auth_login(request, user)
-
+            # Redirect to 'home' URL name which is defined in config/urls.py
             return redirect('home')
+        else:
+            messages.error(request, 'Неверный телефон или пароль')
+    
+    return render(request, 'login.html')
 
-        except TelegramAuth.DoesNotExist:
-            return JsonResponse({"success":False,"message":"Noto'g'ri kod yoki sessiya."},status=400)
-    return JsonResponse({"success":False,"message":"Noto'g'ri so'rov turi"},status=400)
+# In authentication/views.py
+from django.conf import settings
+from django.shortcuts import redirect
 
+def telegram_login(request):
+    if not hasattr(settings, 'TELEGRAM_BOT_ID') or not settings.TELEGRAM_BOT_ID:
+        messages.error(request, 'Telegram bot is not configured. Please contact the administrator.')
+        return redirect('login')
+        
+    telegram_auth_url = (
+        f"https://oauth.telegram.org/auth?"
+        f"bot_id={settings.TELEGRAM_BOT_ID}&"
+        f"origin={request.scheme}://{request.get_host()}&"
+        f"request_access=write&"
+        f"return_to={request.scheme}://{request.get_host()}/auth/telegram/callback/"
+    )
+    return redirect(telegram_auth_url)
 
-
-
+def telegram_callback(request):
+    # Get the auth data from Telegram
+    auth_data = request.GET.dict()
+    
+    # Verify the data (you should add more validation here)
+    if 'hash' not in auth_data:
+        return redirect('login')
+    
+    # Here you would typically:
+    # 1. Verify the auth_data is valid using the bot token
+    # 2. Get or create a user based on the Telegram ID
+    # 3. Log the user in
+    
+    # For now, let's just show the auth data
+    return JsonResponse(auth_data)

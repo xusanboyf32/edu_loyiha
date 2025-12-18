@@ -196,4 +196,3 @@ class SifatchiProfile(models.Model):
 
         def __str__(self):
             return f"{self.full_name} {self.employee_id}"
-

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - EduAgent{% endblock %}
+{% block page_title %}Главная панель{% endblock %}
+
+{% block content %}
+<!-- Welcome Card -->
+<div class="card mb-4" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); border: none;">
+    <div class="card-body text-white">
+        <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">
+            Добро пожаловать, {{ user.get_full_name|default:user.phone_number|default:"Пользователь" }}!
+        </h1>
+        <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 20px;">
+            {% if user.phone_number %}<i class="fas fa-phone me-2"></i>{{ user.phone_number }}{% endif %}
+            {% if user.email %}<br><i class="fas fa-envelope me-2"></i>{{ user.email }}{% endif %}
+        </p>
+        <p style="color: rgba(255, 255, 255, 0.9);">
+            Здесь вы можете управлять всеми аспектами вашей образовательной платформы. Проверяйте статистику, управляйте курсами и студентами.
+        </p>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background-color: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-users fa-lg"></i>
+                    </div>
+                </div>
+                <div style="font-size: 24px; font-weight: 700;">{{ stats.total_students|default:0 }}</div>
+                <div class="text-muted">Всего студентов</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background-color: rgba(16, 185, 129, 0.1); color: var(--success); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-book fa-lg"></i>
+                    </div>
+                </div>
+                <div style="font-size: 24px; font-weight: 700;">{{ stats.total_courses|default:0 }}</div>
+                <div class="text-muted">Активных курсов</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background-color: rgba(245, 158, 11, 0.1); color: var(--warning); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-tasks fa-lg"></i>
+                    </div>
+                </div>
+                <div style="font-size: 24px; font-weight: 700;">{{ stats.total_quests|default:0 }}</div>
+                <div class="text-muted">Выполнено заданий</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background-color: rgba(239, 68, 68, 0.1); color: var(--danger); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-video fa-lg"></i>
+                    </div>
+                </div>
+                <div style="font-size: 24px; font-weight: 700;">{{ stats.total_videos|default:0 }}</div>
+                <div class="text-muted">Видеоуроков</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i> Последняя активность</h5>
+    </div>
+    <div class="card-body">
+        {% if recent_activities %}
+            {% for activity in recent_activities %}
+            <div class="d-flex py-3 border-bottom">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background-color: var(--gray-100); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 12px;">
+                    <i class="fas fa-{{ activity.icon }}"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-medium">{{ activity.title }}</div>
+                    <div class="small text-muted">
+                        <i class="far fa-clock me-1"></i>{{ activity.time }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle me-2"></i>Нет недавней активности
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

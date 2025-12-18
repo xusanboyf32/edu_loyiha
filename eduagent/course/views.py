@@ -467,13 +467,3 @@ class TeacherCommentViewSet(viewsets.ModelViewSet):
             # Ustoz yoki admin barcha commentlarni ko'radi
             return Teachercomment.objects.all()
         return Teachercomment.objects.none()
-
-
-
-
-
-
-
-
-
-
