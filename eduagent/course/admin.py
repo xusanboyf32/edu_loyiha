@@ -1,7 +1,7 @@
 
 from django.contrib import admin
 from .models import Course, Group, VideoLesson, Task, Assistant_Teacher, High_Teacher
-from student.models import Student
+from .student.models import Student
 
 # ================== Student Inline ==================
 class StudentInline(admin.TabularInline):

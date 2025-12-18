@@ -91,8 +91,7 @@ class AdminCreateUserView(APIView):
 
 
 # =============================================================================================
-# =============================================================================================
- #  BU BOTDAN AUTH BOLISH UHCUN VIEW MODEL BN VIEW YETARLI
+#   BU BOTDAN AUTH BOLISH UHCUN VIEW MODEL BN VIEW YETARLI
 # =============================================================================================
 
 from django.http import JsonResponse
@@ -100,8 +99,8 @@ from django.contrib.auth import login as auth_login
 from django.contrib import messages
 # authentication/views.py
 from django.http import JsonResponse
-from django.shortcuts import redirect
-from django.contrib.auth import login as auth_login
+from django.shortcuts import redirect, render
+from django.contrib.auth import login as auth_login, logout
 from django.utils import timezone
 from .models import CustomUser, TelegramAuth
 

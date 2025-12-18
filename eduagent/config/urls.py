@@ -15,7 +15,13 @@ from eduagent.views import (
     course_detail, course_edit, course_delete
 )
 
+<<<<<<< HEAD
 # Swagger/OpenAPI configuration
+=======
+from .course.views import home_page
+
+# ---------------- Swagger sozlamalari ----------------
+>>>>>>> 13227d2d9d78bdc73efe4d2e90c24386fc663e72
 schema_view = get_schema_view(
     openapi.Info(
         title="Education Platform API",
@@ -27,6 +33,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+<<<<<<< HEAD
     
     # Authentication
     path('login/', login_view, name='login'),
@@ -49,6 +56,17 @@ urlpatterns = [
     path('api/auth/', include('rest_framework.urls')),
     
     # Course API
+=======
+    path('admin/', admin.site.urls),
+
+    # DRF login/logout sahifasi
+    path('api/auth/', include('rest_framework.urls')),
+
+    # Authentication app (check-auth, logout va hokazo)
+    path('api/account/', include('authentication.urls')),
+
+    # COURSE app uchun API
+>>>>>>> 13227d2d9d78bdc73efe4d2e90c24386fc663e72
     path('api/course/', include(('course.urls', 'course'), namespace='course')),
     
     # Course management
@@ -63,6 +81,7 @@ urlpatterns = [
     
     # Student API
     path('api/student/', include(('student.urls', 'student'), namespace='student')),
+<<<<<<< HEAD
     
     # API Documentation
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
@@ -70,6 +89,15 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('auth/telegram/login/', telegram_login, name='telegram_login'),
     path('auth/telegram/callback/', telegram_callback, name='telegram_callback'),
+=======
+
+    # Frontend bitta template orqali
+    path('', home_page, name='home'),
+
+    # Swagger
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+>>>>>>> 13227d2d9d78bdc73efe4d2e90c24386fc663e72
 ]
 
 # Media files in development

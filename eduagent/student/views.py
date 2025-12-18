@@ -14,8 +14,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Student
 from .serializers import StudentProfileSerializer
 from .permissions import IsStudent
-from course.models import VideoLesson, Task
-from course.serializers import VideoLessonSerializer, TaskSerializer
+from .course.models import VideoLesson, Task
+from .course.serializers import VideoLessonSerializer, TaskSerializer
 
 
 # --------------------- STUDENT PROFILE ---------------------

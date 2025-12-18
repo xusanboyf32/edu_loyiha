@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import render
 
-from authentication import permissions
+from .authentication import permissions
 from .models import Course, High_Teacher, Assistant_Teacher, Group, VideoLesson, Task
 from .serializers import (
     CourseSerializer, HighTeacherSerializer, AssistantTeacherSerializer,
@@ -15,8 +16,8 @@ from .permissions import (
     IsSifatchi, IsAssistantTeacher, IsHighTeacher,
      CanReviewTask,
 )
-from student.models import Student
-from student.permissions import IsStudent
+from .student.models import Student
+from .student.permissions import IsStudent
 
 
 # ---------------------- COURSE VIEWSET ----------------------
@@ -446,6 +447,7 @@ from .models import Teachercomment
 from .serializers import TeacherCommentSerializer
 from .permissions import IsAssistantTeacherOrAdmin, IsOwnerOrReadOnly
 
+
 class TeacherCommentViewSet(viewsets.ModelViewSet):
     queryset = Teachercomment.objects.all()
     serializer_class = TeacherCommentSerializer
@@ -467,3 +469,13 @@ class TeacherCommentViewSet(viewsets.ModelViewSet):
             # Ustoz yoki admin barcha commentlarni ko'radi
             return Teachercomment.objects.all()
         return Teachercomment.objects.none()
+
+
+
+
+
+
+
+
+
+

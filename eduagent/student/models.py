@@ -1,9 +1,9 @@
 from django.db import models
 from django.conf import settings
-from course.models import Group, High_Teacher, Course, Assistant_Teacher
+from .course.models import Group, High_Teacher, Course, Assistant_Teacher
 from django.contrib.auth import get_user_model
 
-from course.models import High_Teacher
+from .course.models import High_Teacher
 
 User = get_user_model()
 
