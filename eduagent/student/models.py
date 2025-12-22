@@ -1,9 +1,9 @@
 from django.db import models
 from django.conf import settings
-from .course.models import Group, High_Teacher, Course, Assistant_Teacher
+from .models import Group, High_Teacher, Course, Assistant_Teacher
 from django.contrib.auth import get_user_model
 
-from .course.models import High_Teacher
+# from .course.models import High_Teacher
 
 User = get_user_model()
 
@@ -39,7 +39,8 @@ class Student(models.Model):
 
 
     assigned_course = models.ForeignKey(
-        Course,
+        # Course,
+        'course.Course',
         on_delete=models.CASCADE,
         related_name='course_students',
         verbose_name='Kursga tegishli talabalar',
@@ -49,7 +50,8 @@ class Student(models.Model):
 
     # groupdan foreignkey
     assigned_group = models.ForeignKey(
-        Group,
+        # Group,
+        'course.Group',
         on_delete=models.CASCADE,
         related_name="group_students",
         verbose_name='Guruhga tegishli talabalar',
@@ -61,7 +63,8 @@ class Student(models.Model):
 
     # bir necha oquvchi bir necha ustozga bogliq ekanligi
     assigned_teacher = models.ForeignKey(
-        High_Teacher,
+        # High_Teacher,
+        'course.High_Teacher',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -72,7 +75,8 @@ class Student(models.Model):
     )
 
     assigned_assistant_teacher = models.ForeignKey(
-        Assistant_Teacher,
+        # Assistant_Teacher,
+        'course.Assistant_Teacher',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -147,6 +151,8 @@ class ChatMessage(models.Model):
 
     class Meta:
         ordering = ["timestamp"]
+
+
 
 
 

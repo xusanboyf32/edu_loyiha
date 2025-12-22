@@ -7,8 +7,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import CustomUser
 
-from .student.models import Student
-from .course.models import High_Teacher, Assistant_Teacher
+from .models import Student
+from .models import High_Teacher, Assistant_Teacher
+
+
 
 @receiver(post_save, sender=CustomUser)
 def create_profiles(sender, instance: CustomUser, created, **kwargs):

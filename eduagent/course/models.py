@@ -265,7 +265,7 @@ class NotionURL(models.Model):
 # Assistant teacher student vazifasiga comment yozishi
 class Teachercomment(models.Model):
 
-    from student.models import Student
+    # from student.models import Student
 
     task = models.ForeignKey(
         Task,

@@ -10,7 +10,7 @@ from rest_framework import serializers
 # from authentication.bot import phone_handler
 from .models import  ChatMessage, StudentHistory
 
-from student.models import Student
+from .models import Student
 
 User = get_user_model()
 

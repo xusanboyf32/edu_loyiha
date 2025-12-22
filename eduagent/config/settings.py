@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'authentication',
     'course',
     'student',
+    'chatai',
 
     'django_filters',
 
@@ -104,25 +105,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 #load_dotenv() # .env fileni oqishi uchun
 
 
-#DATABASES = {
-    #'default':{
-     #   'ENGINE':'django.db.backends.postgresql',
-      #  'NAME':os.environ.get('DB_NAME'),
-       # 'USER':os.environ.get('DB_USER'),
-        #'PASSWORD':os.environ.get('DB_PASSWORD'),
-        #'HOST':os.environ.get('DB_HOST'),
-        #'PORT':os.environ.get('DB_PORT'),
-    #}
-#}
-
-
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    'default':{
+       'ENGINE':'django.db.backends.postgresql',
+       'NAME':os.environ.get('DB_NAME'),
+       'USER':os.environ.get('DB_USER'),
+        'PASSWORD':os.environ.get('DB_PASSWORD'),
+        'HOST':os.environ.get('DB_HOST'),
+        'PORT':os.environ.get('DB_PORT'),
     }
 }
+
+
+#
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 
@@ -220,4 +221,7 @@ app.autodiscover_tasks()
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
 
+
+# ----------------------  GEMINI API KEY -------------------
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 

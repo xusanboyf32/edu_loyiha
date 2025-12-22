@@ -7,17 +7,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import render
 
 from .authentication import permissions
-from .models import Course, High_Teacher, Assistant_Teacher, Group, VideoLesson, Task
-from .serializers import (
-    CourseSerializer, HighTeacherSerializer, AssistantTeacherSerializer,
-    GroupSerializer, VideoLessonSerializer, TaskSerializer, TaskReviewSerializer
-)
-from .permissions import (
-    IsSifatchi, IsAssistantTeacher, IsHighTeacher,
-     CanReviewTask,
-)
-from .student.models import Student
-from .student.permissions import IsStudent
+
+from .models import Course, High_Teacher, Assistant_Teacher, Group, VideoLesson, Task, KnescopeVideoUrl
+
+from .models import Student
+from .permissions import IsStudent
+
 
 
 # ---------------------- COURSE VIEWSET ----------------------
@@ -471,11 +466,29 @@ class TeacherCommentViewSet(viewsets.ModelViewSet):
         return Teachercomment.objects.none()
 
 
+<<<<<<< HEAD
+=======
+def home_page(request):
+    """
+    Bitta HTML template (templates/index.html) orqali ishlaydigan frontend.
+    """
+    return render(request, "index.html")
+>>>>>>> 6cb033b (Loyiha fayllari commit)
 
 
 
 
 
 
+<<<<<<< HEAD
+=======
+# KINESCOPE UCHUN VIEWS
+
+class KnescopeVideoUrlViewSet(viewsets.ModelViewSet):
+    queryset = KnescopeVideoUrl.objects.all()
+    serializer_class = KnescopeVideoUrlSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+>>>>>>> 6cb033b (Loyiha fayllari commit)
 
 

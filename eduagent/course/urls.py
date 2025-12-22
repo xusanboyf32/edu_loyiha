@@ -24,7 +24,7 @@ router.register(r'comment',TeacherCommentViewSet, basename='comment')
 router.register(r'kinescope', KnescopeVideoUrlViewSet, basename='kinescopeurl')
 
 
-from .authentication.views import telegram_callback
+from .views import telegram_callback
 
 # ------------------ URL patterns ------------------
 urlpatterns = [
