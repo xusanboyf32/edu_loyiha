@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Задания - Falak{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-tasks me-2"></i>Задания</h2>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" id="categoryFilter" style="width: 150px;">
+                        <option value="">Все категории</option>
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="html">HTML/CSS</option>
+                        <option value="django">Django</option>
+                        <option value="algorithm">Алгоритмы</option>
+                        <option value="math">Математика</option>
+                    </select>
+                    <select class="form-select form-select-sm" id="difficultyFilter" style="width: 120px;">
+                        <option value="">Все уровни</option>
+                        <option value="easy">Легкий</option>
+                        <option value="medium">Средний</option>
+                        <option value="hard">Сложный</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ exercises|length }}</h4>
+                            <small>Всего заданий</small>
+                        </div>
+                        <i class="fas fa-tasks fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ completed_exercises|length }}</h4>
+                            <small>Выполнено</small>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">
+                                {% for exercise in exercises %}
+                                    {% if exercise.category == 'math' %}{{ forloop.counter }}{% if not forloop.last %}, {% endif %}{% endif %}
+                                {% endfor %}
+                            </h4>
+                            <small>Математика</small>
+                        </div>
+                        <i class="fas fa-calculator fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">
+                                {% for exercise in exercises %}
+                                    {% if exercise.category == 'python' %}{{ forloop.counter }}{% if not forloop.last %}, {% endif %}{% endif %}
+                                {% endfor %}
+                            </h4>
+                            <small>Python</small>
+                        </div>
+                        <i class="fab fa-python fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список заданий -->
+    <div class="row" id="exercisesList">
+        {% for exercise in exercises %}
+        <div class="col-lg-4 col-md-6 mb-4 exercise-item" 
+             data-category="{{ exercise.category }}" 
+             data-difficulty="{{ exercise.difficulty }}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-{{ exercise.difficulty|yesno:'success,warning,danger' }} rounded-pill">
+                            {{ exercise.get_difficulty_display }}
+                        </span>
+                        <span class="badge bg-primary rounded-pill">{{ exercise.points }} очков</span>
+                    </div>
+                    
+                    <h5 class="card-title">{{ exercise.title }}</h5>
+                    <p class="card-text text-muted">{{ exercise.description|truncatewords:20 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="badge bg-{{ exercise.category|yesno:'primary,secondary,info,danger,warning,success' }} rounded-pill">
+                            {{ exercise.get_category_display }}
+                        </span>
+                        {% if exercise.id in completed_exercises %}
+                        <span class="text-success">
+                            <i class="fas fa-check-circle"></i> Выполнено
+                        </span>
+                        {% else %}
+                        <a href="{% url 'exercise_detail' exercise.id %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-play me-1"></i>Начать
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                <h4>Заданий пока нет</h4>
+                <p class="text-muted">Задания появятся здесь позже</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const difficultyFilter = document.getElementById('difficultyFilter');
+    const exercises = document.querySelectorAll('.exercise-item');
+    
+    function filterExercises() {
+        const category = categoryFilter.value;
+        const difficulty = difficultyFilter.value;
+        
+        exercises.forEach(exercise => {
+            const exerciseCategory = exercise.dataset.category;
+            const exerciseDifficulty = exercise.dataset.difficulty;
+            
+            const categoryMatch = !category || exerciseCategory === category;
+            const difficultyMatch = !difficulty || exerciseDifficulty === difficulty;
+            
+            if (categoryMatch && difficultyMatch) {
+                exercise.style.display = 'block';
+            } else {
+                exercise.style.display = 'none';
+            }
+        });
+    }
+    
+    categoryFilter.addEventListener('change', filterExercises);
+    difficultyFilter.addEventListener('change', filterExercises);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,595 @@
+{% extends 'base.html' %}
+
+{% block title %}Случайные примеры - Falak{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Pop-up стили */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.popup-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    animation: slideUp 0.4s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+    background: #e0e0e0;
+    transform: rotate(90deg);
+}
+
+.popup-question {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 20px 0;
+    line-height: 1.4;
+}
+
+.popup-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    text-align: center;
+    margin: 20px 0;
+    transition: border-color 0.3s ease;
+}
+
+.popup-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.popup-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.popup-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.popup-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.popup-btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.popup-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.popup-hint {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 14px;
+    color: #666;
+    border-left: 4px solid #007bff;
+}
+
+.popup-badges {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.popup-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.popup-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.popup-error {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    color: white;
+}
+
+.popup-coins {
+    background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+    color: white;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.popup-input.shake {
+    animation: shake 0.5s ease;
+}
+
+/* Уведомления */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.notification-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.notification-error {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Карточки примеров */
+.example-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.example-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-color: #007bff;
+}
+
+.example-card.solved {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-random me-2"></i>Случайные примеры</h2>
+                <div>
+                    <button class="btn btn-primary" onclick="loadExamples()">
+                        <i class="fas fa-sync-alt me-1"></i>Обновить
+                    </button>
+                    <button class="btn btn-success" onclick="startQuiz()">
+                        <i class="fas fa-play me-1"></i>Начать квиз
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 id="totalQuestions">0</h3>
+                    <p class="mb-0">Всего примеров</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 id="correctAnswers">0</h3>
+                    <p class="mb-0">Правильных ответов</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3 id="totalCoins">0</h3>
+                    <p class="mb-0">Монет заработано</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 id="accuracy">0%</h3>
+                    <p class="mb-0">Точность</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Примеры -->
+    <div class="row" id="examplesContainer">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-spinner fa-spin fa-3x text-muted mb-3"></i>
+                <h5>Загрузка примеров...</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pop-up окно для примера -->
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup-content">
+        <button class="popup-close" onclick="closePopup()">×</button>
+        
+        <div class="popup-badges">
+            <span class="popup-badge popup-success" id="categoryBadge">Категория</span>
+            <span class="popup-badge popup-error" id="difficultyBadge">Сложность</span>
+            <span class="popup-badge popup-coins" id="coinsBadge">Монеты</span>
+        </div>
+        
+        <div class="popup-question" id="questionText">Загрузка...</div>
+        
+        <input type="text" class="popup-input" id="answerInput" placeholder="Ваш ответ" autocomplete="off">
+        
+        <div class="popup-hint" id="hintText" style="display: none;"></div>
+        
+        <div class="popup-buttons">
+            <button class="popup-btn popup-secondary" onclick="skipExample()">
+                <i class="fas fa-forward me-1"></i>Пропустить
+            </button>
+            <button class="popup-btn popup-primary" onclick="checkAnswer()">
+                <i class="fas fa-check me-1"></i>Проверить
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Результат квиза -->
+<div class="modal fade" id="quizResultModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🎉 Результаты квиза</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <h3 id="finalScore" class="mb-3"></h3>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h4 class="text-success" id="finalCorrect">0</h4>
+                        <small>Правильных</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="text-danger" id="finalWrong">0</h4>
+                        <small>Неправильных</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="text-warning" id="finalCoins">0</h4>
+                        <small>Монет</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <small id="accuracyText">Точность: 0%</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="startQuiz()">
+                    <i class="fas fa-redo me-1"></i>Новый квиз
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let examples = [];
+let currentExampleIndex = 0;
+let correctAnswers = 0;
+let totalAnswers = 0;
+let totalCoins = 0;
+let isQuizMode = false;
+let solvedExamples = new Set();
+
+// Загрузка примеров с сервера
+async function loadExamples() {
+    try {
+        const response = await fetch('/random-examples/');
+        const data = await response.json();
+        
+        if (data.success) {
+            examples = data.examples;
+            displayExamples();
+            updateStats();
+        }
+    } catch (error) {
+        console.error('Error loading examples:', error);
+        showNotification('Не удалось загрузить примеры', 'error');
+    }
+}
+
+// Отображение примеров
+function displayExamples() {
+    const container = document.getElementById('examplesContainer');
+    container.innerHTML = '';
+    
+    examples.forEach((example, index) => {
+        const card = document.createElement('div');
+        card.className = 'col-md-6 col-lg-4 mb-3';
+        card.innerHTML = `
+            <div class="example-card ${solvedExamples.has(example.id) ? 'solved' : ''}" onclick="showExample(${index})">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-primary">${example.category}</span>
+                    <span class="badge bg-${example.difficulty === 'easy' ? 'success' : example.difficulty === 'medium' ? 'warning' : 'danger'}">${example.difficulty}</span>
+                    <span class="badge bg-warning"><i class="fas fa-coins me-1"></i>${example.coins}</span>
+                </div>
+                <h6 class="card-title">${example.question}</h6>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">${example.hint || ''}</small>
+                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); showExample(${index})">
+                        <i class="fas fa-play me-1"></i>Решить
+                    </button>
+                </div>
+                ${solvedExamples.has(example.id) ? '<div class="text-success mt-2"><i class="fas fa-check-circle"></i> Решено</div>' : ''}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Показать пример в pop-up окне
+function showExample(index) {
+    currentExampleIndex = index;
+    const example = examples[index];
+    
+    document.getElementById('categoryBadge').textContent = example.category;
+    document.getElementById('difficultyBadge').textContent = example.difficulty;
+    document.getElementById('coinsBadge').textContent = `${example.coins} монет`;
+    document.getElementById('questionText').textContent = example.question;
+    document.getElementById('answerInput').value = '';
+    
+    if (example.hint) {
+        document.getElementById('hintText').textContent = `💡 Подсказка: ${example.hint}`;
+        document.getElementById('hintText').style.display = 'block';
+    } else {
+        document.getElementById('hintText').style.display = 'none';
+    }
+    
+    document.getElementById('answerInput').focus();
+    
+    // Показываем pop-up
+    const overlay = document.getElementById('popupOverlay');
+    overlay.style.display = 'flex';
+}
+
+// Закрыть pop-up
+function closePopup() {
+    const overlay = document.getElementById('popupOverlay');
+    overlay.style.display = 'none';
+}
+
+// Проверка ответа
+function checkAnswer() {
+    const answer = document.getElementById('answerInput').value.trim();
+    const example = examples[currentExampleIndex];
+    
+    if (!answer) {
+        document.getElementById('answerInput').classList.add('shake');
+        setTimeout(() => {
+            document.getElementById('answerInput').classList.remove('shake');
+        }, 500);
+        return;
+    }
+    
+    if (answer.toLowerCase() === example.answer.toLowerCase()) {
+        // Правильный ответ
+        totalAnswers++;
+        correctAnswers++;
+        totalCoins += example.coins;
+        solvedExamples.add(example.id);
+        
+        showNotification(`🎉 Отлично! +${example.coins} монет!`, 'success');
+        
+        // Обновляем карточку
+        displayExamples();
+        
+        setTimeout(() => {
+            if (isQuizMode) {
+                nextExample();
+            } else {
+                closePopup();
+            }
+        }, 1500);
+    } else {
+        // Неправильный ответ
+        totalAnswers++;
+        showNotification('❌ Неправильно. Попробуй еще раз!', 'error');
+        document.getElementById('answerInput').classList.add('shake');
+        setTimeout(() => {
+            document.getElementById('answerInput').classList.remove('shake');
+        }, 500);
+    }
+    
+    updateStats();
+}
+
+// Показать уведомление
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideInRight 0.3s ease reverse';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Пропустить пример
+function skipExample() {
+    if (isQuizMode) {
+        nextExample();
+    } else {
+        closePopup();
+    }
+}
+
+// Следующий пример
+function nextExample() {
+    currentExampleIndex = (currentExampleIndex + 1) % examples.length;
+    showExample(currentExampleIndex);
+}
+
+// Начать квиз
+function startQuiz() {
+    isQuizMode = true;
+    correctAnswers = 0;
+    totalAnswers = 0;
+    totalCoins = 0;
+    currentExampleIndex = 0;
+    solvedExamples.clear();
+    
+    updateStats();
+    displayExamples();
+    showExample(0);
+}
+
+// Показать результаты квиза
+function showQuizResults() {
+    const accuracy = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+    
+    document.getElementById('finalScore').textContent = `Результат: ${correctAnswers} из ${totalAnswers}`;
+    document.getElementById('finalCorrect').textContent = correctAnswers;
+    document.getElementById('finalWrong').textContent = totalAnswers - correctAnswers;
+    document.getElementById('finalCoins').textContent = totalCoins;
+    document.getElementById('progressBar').style.width = `${accuracy}%`;
+    document.getElementById('accuracyText').textContent = `Точность: ${accuracy}%`;
+    
+    const modal = new bootstrap.Modal(document.getElementById('quizResultModal'));
+    modal.show();
+    
+    isQuizMode = false;
+}
+
+// Обновление статистики
+function updateStats() {
+    document.getElementById('totalQuestions').textContent = examples.length;
+    document.getElementById('correctAnswers').textContent = correctAnswers;
+    document.getElementById('totalCoins').textContent = totalCoins;
+    
+    const accuracy = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+    document.getElementById('accuracy').textContent = `${accuracy}%`;
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    loadExamples();
+    
+    // Обработка Enter в поле ввода
+    document.getElementById('answerInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkAnswer();
+        }
+    });
+    
+    // Закрытие pop-up по клику вне контента
+    document.getElementById('popupOverlay').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closePopup();
+        }
+    });
+    
+    // Закрытие по Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePopup();
+        }
+    });
+});
+</script>
+{% endblock %}

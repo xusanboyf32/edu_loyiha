@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль - EduAgent{% endblock %}
+{% block page_title %}Мой профиль{% endblock %}
+
+{% block content %}
+<!-- Profile Header -->
+<div class="card mb-4 text-center">
+    <div class="card-body py-5">
+        <div class="mb-3">
+            {% with display_name=user.get_full_name|default:user.phone|default:user.email|default:'Пользователь' %}
+            <img src="https://ui-avatars.com/api/?name={{ display_name|urlencode }}&background=2563EB&color=fff&size=120&rounded=true" 
+                 alt="{{ display_name }}" 
+                 class="rounded-circle">
+        </div>
+        <h2 class="mb-1">{{ display_name }}</h2>
+        {% endwith %}
+        <p class="text-muted">{% if user.is_staff %}Администратор{% else %}Пользователь{% endif %}</p>
+        {% if user.phone %}<p class="text-muted"><i class="fas fa-phone me-2"></i>{{ user.phone }}</p>{% endif %}
+        {% if user.email %}<p class="text-muted"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>{% endif %}
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-2" style="color: var(--primary);">
+                    <i class="fas fa-book fa-2x"></i>
+                </div>
+                <div class="h4 mb-1">{{ user_stats.courses_enrolled|default:0 }}</div>
+                <div class="text-muted small">Курсы</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-2" style="color: var(--success);">
+                    <i class="fas fa-check-circle fa-2x"></i>
+                </div>
+                <div class="h4 mb-1">{{ user_stats.courses_completed|default:0 }}</div>
+                <div class="text-muted small">Завершено</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-2" style="color: var(--warning);">
+                    <i class="fas fa-star fa-2x"></i>
+                </div>
+                <div class="h4 mb-1">{{ user_stats.total_points|default:0 }}</div>
+                <div class="text-muted small">Баллы</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-2" style="color: var(--info);">
+                    <i class="fas fa-trophy fa-2x"></i>
+                </div>
+                <div class="h4 mb-1">{{ user_stats.rank|default:'Новичок' }}</div>
+                <div class="text-muted small">Уровень</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Information -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Личная информация</span>
+                    <a href="{% url 'profile_edit' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit me-1"></i> Редактировать
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="fw-medium text-muted mb-1">Полное имя</label>
+                    <div>{{ user.get_full_name|default:user.username }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-medium text-muted mb-1">Email</label>
+                    <div>{{ user.email }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-medium text-muted mb-1">Телефон</label>
+                    <div>{{ user.profile.phone|default:"Не указан" }}</div>
+                </div>
+                <div class="mb-0">
+                    <label class="fw-medium text-muted mb-1">О себе</label>
+                    <div>{{ user.profile.bio|default:"Не указано" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <span>Настройки аккаунта</span>
+            </div>
+            <div class="card-body">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="emailNotifications" {% if user.profile.email_notifications %}checked{% endif %}>
+                    <label class="form-check-label" for="emailNotifications">Email уведомления</label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="pushNotifications" {% if user.profile.push_notifications %}checked{% endif %}>
+                    <label class="form-check-label" for="pushNotifications">Push уведомления</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="twoFactor" {% if user.profile.two_factor_enabled %}checked{% endif %}>
+                    <label class="form-check-label" for="twoFactor">Двухфакторная аутентификация</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

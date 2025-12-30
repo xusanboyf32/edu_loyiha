@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Математический ИИ-помощник - Falak{% endblock %}
+
+{% block content %}
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <div class="col-12">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <div class="chat-header d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calculator me-2"></i>
+                            Математический ИИ-помощник
+                        </h5>
+                        <button class="btn btn-sm btn-outline-primary" id="clearChat">
+                            <i class="fas fa-trash me-1"></i>
+                            Очистить чат
+                        </button>
+                    </div>
+                    
+                    <div class="chat-messages flex-grow-1 mb-3" id="chatMessages" style="height: 400px; overflow-y: auto;">
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-calculator fa-3x mb-3"></i>
+                            <h5>Математический помощник готов!</h5>
+                            <p>Задавайте арифметические примеры и математические задачи</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="messageInput" 
+                                   placeholder="Например: 15 + 27 или реши 2x + 5 = 15" 
+                                   onkeypress="if(event.key === 'Enter') sendMessage()">
+                            <button class="btn btn-primary" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Поддерживает: сложение, вычитание, умножение, деление, уравнения, геометрия
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let sessionId = 'math_session_' + Date.now();
+
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message
+    addMessage(message, true);
+    input.value = '';
+    
+    // Send to API
+    fetch('/ai/math/api/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: message,
+            session_id: sessionId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            addMessage(data.response, false);
+        } else {
+            addMessage('Ошибка: ' + data.error, false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        addMessage('Произошла ошибка при отправке сообщения', false);
+    });
+}
+
+function addMessage(message, isUser) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageClass = isUser ? 'user-message' : 'ai-message';
+    const alignment = isUser ? 'justify-content-end' : 'justify-content-start';
+    
+    const messageHtml = `
+        <div class="d-flex ${alignment} mb-3">
+            <div class="message ${messageClass} ${isUser ? 'bg-primary text-white' : 'bg-light'}" 
+                 style="max-width: 70%; padding: 10px 15px; border-radius: 15px;">
+                <div class="small ${isUser ? 'text-white-50' : 'text-muted'} mb-1">
+                    ${isUser ? 'Вы' : 'Мат. ИИ'}
+                </div>
+                <div>${message}</div>
+            </div>
+        </div>
+    `;
+    
+    messagesDiv.insertAdjacentHTML('beforeend', messageHtml);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function clearChat() {
+    if (confirm('Очистить всю историю чата?')) {
+        document.getElementById('chatMessages').innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-calculator fa-3x mb-3"></i>
+                <h5>Математический помощник готов!</h5>
+                <p>Задавайте арифметические примеры и математические задачи</p>
+            </div>
+        `;
+        
+        // Clear on server
+        fetch(`/ai/clear/${sessionId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+        
+        sessionId = 'math_session_' + Date.now();
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Event listeners
+document.getElementById('clearChat').addEventListener('click', clearChat);
+
+// Load history on page load
+document.addEventListener('DOMContentLoaded', function() {
+    fetch(`/ai/history/${sessionId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.history.length > 0) {
+                const messagesDiv = document.getElementById('chatMessages');
+                messagesDiv.innerHTML = ''; // Clear welcome message
+                
+                data.history.forEach(msg => {
+                    addMessage(msg.message, msg.is_user);
+                });
+            }
+        })
+        .catch(error => {
+            console.log('No history to load');
+        });
+});
+</script>
+
+<style>
+.message {
+    word-wrap: break-word;
+}
+
+.user-message {
+    border-bottom-right-radius: 5px !important;
+}
+
+.ai-message {
+    border-bottom-left-radius: 5px !important;
+}
+
+.chat-messages {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}

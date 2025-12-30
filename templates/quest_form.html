@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - EduAgent{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="title" class="form-label">Название задания</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="course" class="form-label">Курс</label>
+                    <select class="form-select" id="course" name="course" required>
+                        <option value="" selected disabled>Выберите курс</option>
+                        {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="deadline" class="form-label">Срок сдачи</label>
+                    <input type="date" class="form-control" id="deadline" name="deadline" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="points" class="form-label">Баллы</label>
+                    <input type="number" class="form-control" id="points" name="points" min="1" value="10" required>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="difficulty" class="form-label">Сложность</label>
+                    <select class="form-select" id="difficulty" name="difficulty" required>
+                        <option value="easy">Легкая</option>
+                        <option value="medium" selected>Средняя</option>
+                        <option value="hard">Сложная</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label for="status" class="form-label">Статус</label>
+                    <select class="form-select" id="status" name="status" required>
+                        <option value="active" selected>Активно</option>
+                        <option value="draft">Черновик</option>
+                        <option value="archived">В архиве</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Описание задания</label>
+                <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'quests' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Назад к списку
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Сохранить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,193 @@
+{
+  "success": true,
+  "count": 20,
+  "examples": [
+    {
+      "id": "geo_square_perimeter_2",
+      "question": "Найди периметр квадрата со стороной 9 см",
+      "answer": "36",
+      "hint": "P = 4 × a",
+      "difficulty": "easy",
+      "category": "geometry",
+      "coins": 6
+    },
+    {
+      "id": "eng_5",
+      "question": "Translate 'sun'",
+      "answer": "солнце",
+      "hint": "Небесное тело",
+      "difficulty": "easy",
+      "category": "english",
+      "coins": 15
+    },
+    {
+      "id": "math_6",
+      "question": "30 ÷ 5 = ?",
+      "answer": "6",
+      "difficulty": "easy",
+      "category": "math",
+      "coins": 20,
+      "hint": "Используй операцию /"
+    },
+    {
+      "id": "geo_square_perimeter_1",
+      "question": "Найди периметр квадрата со стороной 9 см",
+      "answer": "36",
+      "hint": "P = 4 × a",
+      "difficulty": "easy",
+      "category": "geometry",
+      "coins": 6
+    },
+    {
+      "id": "logic_0",
+      "question": "Найди закономерность: 2, 4, 8, 16, ?",
+      "answer": "32",
+      "hint": "Каждое число умножается на 2",
+      "difficulty": "hard",
+      "category": "logic",
+      "coins": 15
+    },
+    {
+      "id": "eng_1",
+      "question": "Translate 'pencil'",
+      "answer": "карандаш",
+      "hint": "Письменная принадлежность",
+      "difficulty": "easy",
+      "category": "english",
+      "coins": 15
+    },
+    {
+      "id": "math_5",
+      "question": "162 ÷ 9 = ?",
+      "answer": "18",
+      "difficulty": "hard",
+      "category": "math",
+      "coins": 12,
+      "hint": "Используй операцию /"
+    },
+    {
+      "id": "geo_perimeter_1",
+      "question": "Найди периметр прямоугольника со сторонами 12 и 13 см",
+      "answer": "50",
+      "hint": "P = 2 × (a + b)",
+      "difficulty": "medium",
+      "category": "geometry",
+      "coins": 10
+    },
+    {
+      "id": "eng_0",
+      "question": "Translate 'tree'",
+      "answer": "дерево",
+      "hint": "Растение",
+      "difficulty": "easy",
+      "category": "english",
+      "coins": 8
+    },
+    {
+      "id": "logic_1",
+      "question": "Сколько дней в неделе?",
+      "answer": "7",
+      "hint": "Понедельник, вторник...",
+      "difficulty": "easy",
+      "category": "logic",
+      "coins": 5
+    },
+    {
+      "id": "math_1",
+      "question": "100 - 19 = ?",
+      "answer": "81",
+      "difficulty": "hard",
+      "category": "math",
+      "coins": 12,
+      "hint": "Используй операцию -"
+    },
+    {
+      "id": "math_4",
+      "question": "43 - 36 = ?",
+      "answer": "7",
+      "difficulty": "easy",
+      "category": "math",
+      "coins": 10,
+      "hint": "Используй операцию -"
+    },
+    {
+      "id": "math_7",
+      "question": "17 + 8 = ?",
+      "answer": "25",
+      "difficulty": "easy",
+      "category": "math",
+      "coins": 10,
+      "hint": "Используй операцию +"
+    },
+    {
+      "id": "geo_area_0",
+      "question": "Найди площадь прямоугольника со сторонами 11 и 4 см",
+      "answer": "44",
+      "hint": "S = a × b",
+      "difficulty": "easy",
+      "category": "geometry",
+      "coins": 8
+    },
+    {
+      "id": "eng_4",
+      "question": "Translate 'cat'",
+      "answer": "кошка",
+      "hint": "Домашнее животное",
+      "difficulty": "easy",
+      "category": "english",
+      "coins": 8
+    },
+    {
+      "id": "eng_2",
+      "question": "Translate 'library'",
+      "answer": "библиотека",
+      "hint": "Место с книгами",
+      "difficulty": "easy",
+      "category": "english",
+      "coins": 15
+    },
+    {
+      "id": "math_3",
+      "question": "78 ÷ 6 = ?",
+      "answer": "13",
+      "difficulty": "medium",
+      "category": "math",
+      "coins": 18,
+      "hint": "Используй операцию /"
+    },
+    {
+      "id": "math_2",
+      "question": "73 - 38 = ?",
+      "answer": "35",
+      "difficulty": "medium",
+      "category": "math",
+      "coins": 5,
+      "hint": "Используй операцию -"
+    },
+    {
+      "id": "math_0",
+      "question": "5 + 46 = ?",
+      "answer": "51",
+      "difficulty": "medium",
+      "category": "math",
+      "coins": 5,
+      "hint": "Используй операцию +"
+    },
+    {
+      "id": "eng_3",
+      "question": "Translate 'water'",
+      "answer": "вода",
+      "hint": "Жидкость",
+      "difficulty": "easy",
+      "category": "english",
+      "coins": 8
+    }
+  ],
+  "categories": [
+    "math",
+    "english",
+    "geometry",
+    "logic"
+  ],
+  "generated_at": "5399408002"
+}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Задания - EduAgent{% endblock %}
+{% block page_title %}Задания{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-tasks me-2 text-primary"></i> Список заданий</h5>
+            <a href="{% url 'quest_create' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i> Новое задание
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Курс</th>
+                        <th>Срок сдачи</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quest in quests %}
+                    <tr>
+                        <td>{{ quest.title }}</td>
+                        <td>{{ quest.course.name }}</td>
+                        <td>{{ quest.deadline|date:"d.m.Y" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if quest.status == 'active' %}bg-success
+                                {% elif quest.status == 'review' %}bg-warning text-dark
+                                {% elif quest.status == 'pending' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {% if quest.status == 'active' %}Активно
+                                {% elif quest.status == 'review' %}На проверке
+                                {% elif quest.status == 'pending' %}Ожидает
+                                {% else %}{{ quest.get_status_display }}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'quest_edit' quest.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'quest_delete' quest.id %}" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Задания не найдены
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

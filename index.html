@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EduPlay — Школьный городок (Оптимальный)</title>
+<style>
+  :root{
+    --bg:#eef7fb;
+    --card:#ffffff;
+    --primary:#2E88F0;
+    --accent:#F5A623;
+    --muted:#56728a;
+    --radius:14px;
+  } 
+  *{box-sizing:border-box;font-family:Inter, "Poppins", sans-serif}
+  body{background:var(--bg);color:#072033;margin:0;min-height:100vh}
+  .app{max-width:1250px;margin:18px auto;padding:18px;}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:64px;height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900}
+  h1{margin:0;font-size:20px}
+  nav{display:flex;gap:8px;align-items:center}
+  button{cursor:pointer;border:0;padding:10px 14px;border-radius:10px;font-weight:700}
+  .btn-primary{background:linear-gradient(90deg,var(--primary),#73b8ff);color:#fff}
+  .btn-ghost{background:transparent;border:2px solid rgba(46,136,240,0.14);color:var(--primary)}
+  .hero{margin-top:14px;border-radius:16px;background:linear-gradient(180deg,#fff,#eaf6ff);padding:18px;display:flex;gap:18px;align-items:center;box-shadow:0 10px 34px rgba(6,30,60,0.06)}
+  .hero .left{flex:1}
+  .mascot{width:120px;height:120px;border-radius:12px;background:linear-gradient(90deg,#fff,#f2fbff);display:flex;align-items:center;justify-content:center;font-size:46px}
+  .layout{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+  .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 10px 30px rgba(6,30,60,0.04)}
+  .hidden{display:none}
+  /* School Town */
+  .town{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;justify-content:center;padding:12px}
+  .building{width:180px;height:220px;border-radius:12px;background:linear-gradient(180deg,#fff,#f3fbff);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:12px;border:2px solid rgba(6,36,60,0.04);cursor:pointer;transition:all .18s;box-shadow:0 8px 24px rgba(8,30,60,0.03)}
+  .building:hover{transform:translateY(-8px);box-shadow:0 18px 40px rgba(6,30,60,0.09)}
+  .building img{width:120px;height:80px;object-fit:cover;border-radius:8px}
+  .building h3{margin:10px 0 4px 0;font-size:16px}
+  .building p{margin:0;color:var(--muted);font-size:13px}
+  /* Level nodes inside building */
+  .levels-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .lvl{width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left: 8px; font-weight:800;background:#eef7ff;border:3px solid rgba(46,136,240,0.06);cursor:pointer}
+  .lvl.locked{opacity:.4;filter:grayscale(.3);cursor:default}
+  .lvl.done{background:linear-gradient(135deg,#7ED321,#b7ff9b);color:#07320b}
+  /* Theory modal */
+  .theory-modal{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(3,10,20,0.45);z-index:60}
+  .theory-card{width:760px;background:var(--card);padding:18px;border-radius:12px;box-shadow:0 18px 60px rgba(4,26,60,0.25)}
+  .theory-card h2{margin:0 0 8px 0}
+  .theory-card .example{background:#f4fbff;padding:12px;border-radius:8px;border:1px solid rgba(46,136,240,0.06);margin-top:8px}
+  /* Missions */
+  .missions{display:flex;flex-direction:column;gap:10px}
+  .mission{background:linear-gradient(180deg,#fff,#fbfffa);padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.03);display:flex;justify-content:space-between;align-items:center}
+  .mission.done{opacity:.6;text-decoration:line-through}
+  /* Collections */
+  .collection-grid{display:flex;gap:8px;flex-wrap:wrap}
+  .collect-item{width:80px;height:80px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;border:2px solid rgba(6,36,60,0.04)}
+  /* Shop */
+  .shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .shop-item{background:#fff;padding:10px;border-radius:10px;display:flex;gap:8px;align-items:center}
+  .avatar-item{width:56px;height:56px;border-radius:10px}
+  /* Teacher bot */
+  .chat{height:186px;overflow:auto;padding:8px;background:#fbffff;border-radius:10px}
+  .message{padding:8px 12px;border-radius:12px;margin-bottom:8px;max-width:80%}
+  .msg-user{background:linear-gradient(90deg,#dfefff,#cbe8ff);align-self:flex-end}
+  .msg-bot{background:linear-gradient(90deg,#fff6d8,#fff1c0)}
+  /* small helpers */
+  .muted{color:var(--muted)}
+  .center{display:flex;align-items:center;justify-content:center}
+  /* Tournament panel */
+  
+  .panel {
+    position: fixed;
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 88%;
+    max-width: 760px;
+    padding: 18px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.18);
+    z-index: 999; 
+  }
+  .section { margin-top:14px; padding:12px; background:#f4f8ff; border-radius:10px; }
+  .league-box { padding:12px; border-radius:10px; background:linear-gradient(180deg,#eef6ff,#ffffff); border:1px solid rgba(46,136,240,0.06); }
+  @media (max-width:980px){ .layout{grid-template-columns:1fr} .theory-card{width:92%} .building{width:140px;height:200px} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo" style="width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 900;   background-color: #fff; "  ><img src="./def032e0-8740-4a4f-8ccd-cf6ffc17d45f.png" alt="" style="width: 45px;"></div>
+      <div>
+        <h1>FALAK — Школьный городок</h1>
+        <div class="muted" style="font-size:13px">Реалистичные здания, теория перед уровнем, миссии и коллекции</div>
+      </div>
+    </div>
+    <nav>
+      <a id="themeSelect" onchange="changeTheme(this.value)" >
+        
+      </a>
+      <button class="btn-ghost" onclick="goHome()">Главная</button>
+      <button class="btn-ghost" onclick="showTown()">Карта (городок)</button>
+      <button class="btn-ghost" onclick="openTournaments()">🏆 Турниры</button>
+      <button class="btn-ghost" onclick="openProfile()">Профиль</button>
+      <button class="btn-primary" id="authBtn" onclick="promptLogin()">Войти</button>
+    </nav>
+  </header>
+
+  <section class="hero card">
+    <div class="left">
+      <h2>Добро пожаловать в Школьный городок</h2>
+      <p class="muted">Нажмите на любое здание: там — уровни, теория и мини-игры. Недельные миссии обновляются автоматически каждую неделю.</p>
+      <div style="margin-top:12px">
+        <button class="btn-primary" onclick="showTown()">Открыть городок</button>
+        <button class="btn-ghost" onclick="showSection('missionsPanel')">Миссии</button>
+      </div>
+    </div>
+    <div class="mascot">🏫</div>
+  </section>
+
+  <!-- AI Learning Path (inserted) -->
+  <section id="aiPath" class="card" style="margin-top:18px">
+    <h2>Персональная траектория обучения (AI-learning path)</h2>
+    <p class="muted">Индивидуальный маршрут, сформированный на основе ваших успехов и интересов.</p>
+    <div style="height:10px"></div>
+    <div id="aiPathBox" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div style="margin-top:12px">
+      <button class="btn-primary" onclick="updateAIPath()">Обновить траекторию</button>
+    </div>
+  </section>
+
+  <div class="layout">
+    <main>
+      <!-- Town -->
+      <section id="town" class="card">
+        <h2>Школьный городок</h2>
+        <div class="muted">Кликайте по зданиям, чтобы открыть уровни и теорию.</div>
+        <div style="height:12px"></div>
+        <div class="town" id="townArea"></div>
+      </section>
+
+      <!-- Theory modal -->
+      <div id="theoryModal" class="theory-modal">
+        <div class="theory-card">
+          <h2 id="theoryTitle">Тема</h2>
+          <div id="theoryText" class="muted">Короткое объяснение</div>
+          <div class="example">
+            <strong>Пример:</strong>
+            <div id="theoryExample" class="muted">Пример...</div>
+          </div>
+          <div style="height:10px"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn-ghost" onclick="closeTheory()">Отмена</button>
+            <button class="btn-primary" onclick="startLevelFromTheory()">Начать уровень</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Levels & games (reused sections) -->
+      <section id="levelScreen" class="card hidden">
+        <h2 id="levelHeader">Уровень</h2>
+        <div id="levelInfo" class="muted">Информация об уровне</div>
+        <div style="height:8px"></div>
+
+        <!-- Fallback simple question -->
+        <div id="fallbackGame" class="hidden">
+          <div id="questionText" class="question">Вопрос</div>
+          <div id="optionsBox" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"></div>
+        </div>
+
+        <!-- Collect Word -->
+        <div id="collectWord" class="hidden">
+          <div class="muted" id="collectHint"></div>
+          <div class="assembled" id="assembledArea"></div>
+          <div style="height:8px"></div>
+          <div class="scrambled" id="scrambledArea"></div>
+          <div style="height:8px"></div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <button class="btn-primary" onclick="checkCollected()">Проверить</button>
+            <button class="btn-ghost" onclick="shuffleCollected()">Перемешать</button>
+          </div>
+        </div>
+
+        <!-- Catch -->
+        <div id="catchGame" class="hidden">
+          <div class="muted" id="catchHint">Вопрос</div>
+          <div class="catch-area" id="catchArea" style="margin-top:8px;height:260px"></div>
+          <div style="height:10px"></div>
+          <div class="center"><button class="btn-ghost" onclick="stopCatch()">Закончить</button></div>
+        </div>
+      </section>
+
+      <!-- Missions / Collections -->
+      <section id="missionsPanel" class="card hidden">
+        <h2>Недельные миссии</h2>
+        <div class="muted">Новые миссии каждые 7 дней. Выполняй — получай награды.</div>
+        <div style="height:10px"></div>
+        <div class="missions" id="missionsList"></div>
+        <div style="height:12px"></div>
+        <h3>Коллекции</h3>
+        <div style="height:8px"></div>
+        <div class="collection-grid" id="collectionsGrid"></div>
+      </section>
+
+      <!-- Shop -->
+      <section id="shopPanel" class="card hidden">
+        <h2>Магазин</h2>
+        <div style="height:8px"></div>
+        <div class="shop-grid" id="shopGrid"></div>
+      </section>
+    </main>
+
+    <!-- Sidebar: profile, bot, quick -->
+    <aside>
+      <section class="card profile">
+        <div class="avatar" id="avatarBox">U</div>
+        <div style="text-align:center;margin-top:6px">
+          <div style="font-weight:900" id="displayName">Гость</div>
+          <div class="muted" id="displayClass">—</div>
+        </div>
+        
+        <div style="height:8px"></div>
+        <div style="display:flex;gap:8px">
+          <div class="stat" style="padding:8px;border-radius:8px;background:#fbfdff">Монеты: <strong id="coins">0</strong></div>
+          <div class="stat" style="padding:8px;border-radius:8px;background:#fbfdff">Уровень: <strong id="userLevel">1</strong></div>
+        </div>
+        <div style="height:10px"></div>
+        <div style="width:100%"><div class="muted" style="font-size:13px">Math</div><div class="progress" style="margin-top:6px"><div id="mathFill" class="fill" style="width:0%"></div></div></div>
+        <div style="height:8px"></div>
+        <div style="width:100%"><div class="muted" style="font-size:13px">English</div><div class="progress" style="margin-top:6px"><div id="engFill" class="fill" style="background:var(--accent);width:0%"></div></div></div>
+        <div style="height:10px"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-ghost" onclick="openAvatarPicker()">Аватар</button>
+          <button class="btn-ghost" onclick="openShop()">Магазин</button>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:12px">
+        <h3>Учитель-бот</h3>
+        <div class="chat" id="chatBox"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="chatInput" placeholder="Спросить бота (например: 'объясни сложение')" style="flex:1;padding:8px;border-radius:8px;border:1px solid #eaf6ff">
+          <button class="btn-primary" onclick="sendBot()">Отправить</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn-ghost" onclick="botSpeakLast()">🔊 Озвучить</button>
+          <button class="btn-ghost" onclick="botSuggest()">🎯 Задание</button>
+        </div>
+      </section>
+
+    </aside>
+  </div>
+</div>
+
+<!-- coin popup -->
+<div id="coinPopup" style="position:fixed;right:18px;top:18px;background:linear-gradient(90deg,#FFD54A,#FFB347);padding:10px 14px;border-radius:10px;font-weight:900;display:none;z-index:80">+<span id="coinVal">0</span> 💰</div>
+
+<!-- login modal -->
+<div id="loginModal" style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;align-items:center;justify-content:center;background:rgba(3,10,20,0.45);z-index:90">
+  <div style="width:420px;background:var(--card);padding:16px;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,0.2)">
+    <h3>Регистрация / Вход</h3>
+    <div style="margin-top:8px"><input id="nameInput" placeholder="Имя" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e6f3fb"></div>
+    <div style="margin-top:8px"><select id="classInput" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e6f3fb"><option value="">Класс</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+      <button class="btn-ghost" onclick="closeLogin()">Отмена</button>
+      <button class="btn-primary" onclick="doLogin()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+avatar-item
+
+
+<!-- avatar picker modal -->
+<div id="avatarModal" style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;align-items:center;justify-content:center;background:rgba(3,10,20,0.45);z-index:92">
+  <div style="width:520px;background:var(--card);padding:16px;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,0.2)">
+    <h3>Выбери аватар</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap" id="avatarPicker"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn-ghost" onclick="closeAvatarModal()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tournament panel -->
+<div id="tournamentPanel" class="panel hidden">
+  <h2>🏆 Турниры & Рейтинг</h2>
+  <div class="league-box">
+    <h3>Ваша лига: <span id="userLeague">—</span></h3>
+    <p>Очки лиги: <span id="leaguePoints">0</span></p>
+    <p id="leagueProgressText"></p>
+  </div>
+
+  <div class="section">
+    <h3>🔥 Топ-10 игроков недели</h3>
+    <ul id="leaderboardList"></ul>
+  </div>
+
+  <div class="section">
+    <h3>🎯 Текущий турнир</h3>
+    <p>Задание турнира: пройди 5 уровней за 24 часа!</p>
+    <p>Прогресс: <span id="tournamentProgress">0</span>/5</p>
+  </div>
+
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+    <button class="btn-ghost" onclick="closeTournaments()">Закрыть</button>
+  </div>
+</div>
+
+<script>
+/* ---------------- Persistence & state (extended) ---------------- */
+const KEY = 'eduplay_opt_v2';
+const DEFAULT = {
+  user:{name:null,cls:null,coins:0,level:1,avatar:null,ach:[]},
+  progress:{math:0,eng:0},
+  unlocked:{math:1,eng:1},
+  shop:{},
+  collections:{stickers:[],items:[]},
+  missions:{weekStart:null,list:[]},
+  theme:'theme-light',
+  difficulty:{math:1,eng:1,streak:0},
+  aiData:{mathErrors:0,engErrors:0,mathLevel:1,engLevel:1,speed:1,gamesPlayed:0,missionsCompleted:0},
+  leaguePoints:0,
+  leaderboard:[], // [{name,score},...]
+  tournamentProgress:0,
+  tournamentLastReset:null
+};
+let state = loadState() || JSON.parse(JSON.stringify(DEFAULT));
+
+function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+function loadState(){ try{ return JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){return null;} }
+
+/* ---------------- Utilities ---------------- */
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+/* ---------------- Theme ---------------- */
+function changeTheme(t){ document.body.className = t; state.theme = t; saveState(); }
+if(state.theme) { document.getElementById('themeSelect').value = state.theme; changeTheme(state.theme); }
+
+/* ---------------- UI update ---------------- */
+function updateUI(){
+  document.getElementById('displayName').textContent = state.user.name || 'Гость';
+  document.getElementById('displayClass').textContent = state.user.cls ? 'Класс ' + state.user.cls : '—';
+  const ab = document.getElementById('avatarBox');
+  if(state.user.avatar){ ab.style.backgroundImage = `url(${state.user.avatar})`; ab.style.backgroundSize='cover'; ab.textContent=''; } else { ab.style.backgroundImage=''; ab.textContent = state.user.name ? state.user.name.trim()[0].toUpperCase() : 'U'; }
+  document.getElementById('coins').textContent = state.user.coins || 0;
+  document.getElementById('userLevel').textContent = state.user.level || 1;
+  document.getElementById('mathFill').style.width = (state.progress.math||0)+'%';
+  document.getElementById('engFill').style.width = (state.progress.eng||0)+'%';
+  const authBtn = document.getElementById('authBtn');
+  if(state.user.name){ authBtn.textContent='Профиль'; authBtn.onclick = openProfile; } else { authBtn.textContent='Войти'; authBtn.onclick = promptLogin; }
+}
+updateUI();
+
+/* ---------------- Town buildings ---------------- */
+const BUILDINGS = [
+  {id:'school', title:'Школа (Теория)', desc:'Теория по темам и уроки', img:'🏫', type:'theory', area:'central'},
+  {id:'math', title:'Класс математики', desc:'Задачи и мини-игры', img:'🧮', type:'math', area:'east'},
+  {id:'english', title:'Библиотека (Англ.)', desc:'Слова и пазлы', img:'📚', type:'eng', area:'north'},
+  {id:'play', title:'Игровая площадка', desc:'Всякие мини-игры', img:'🎮', type:'games', area:'west'},
+  {id:'shop', title:'Магазин', desc:'Купи аватар/стикер', img:'🏬', type:'shop', area:'south'},
+  {id:'arena', title:'Арена наград', desc:'Достижения и коллекции', img:'🏆', type:'arena', area:'south'}
+];
+
+function renderTown(){
+  const area = document.getElementById('townArea'); area.innerHTML='';
+  BUILDINGS.forEach(b=>{
+    const el = document.createElement('div'); el.className='building';
+    el.innerHTML = `<div style="font-size:46px">${b.img}</div><h3>${b.title}</h3><p>${b.desc}</p><div class="levels-row" id="levels-${b.id}"></div>`;
+    el.onclick = (e) => { if(e.target.classList.contains('lvl')) return; onBuildingClick(b); };
+    area.appendChild(el);
+    renderLevelsRow(b.id);
+  });
+}
+function renderLevelsRow(buildingId){
+  const wrap = document.getElementById('levels-'+buildingId);
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  for(let i=1;i<=6;i++){
+    const d = document.createElement('div'); d.className='lvl';
+    let locked=false, done=false;
+    if(buildingId==='math'){ locked = i > (state.unlocked.math||1); done = i < (state.unlocked.math||1); }
+    else if(buildingId==='english'){ locked = i > (state.unlocked.eng||1); done = i < (state.unlocked.eng||1); }
+    else { locked = i > 1; done = false; }
+    if(locked) d.classList.add('locked'); if(done) d.classList.add('done');
+    d.textContent = i;
+    d.onclick = (ev)=>{ ev.stopPropagation(); if(locked) return; openLevel(buildingId,i); };
+    wrap.appendChild(d);
+  }
+}
+
+/* ---------------- Building click handler ---------------- */
+function onBuildingClick(b){
+  if(!state.user.name){ promptLogin(); return; }
+  if(b.type==='shop') openShop();
+  else if(b.type==='arena') showMissions();
+  else if(b.type==='theory') showTheoryIndex();
+  else {
+    state.currentSubject = b.type === 'math' ? 'math' : (b.type === 'eng' ? 'eng' : 'math');
+    showSection('levels'); renderTown();
+  }
+}
+
+/* ---------------- Sections control ---------------- */
+function hideAllMain(){
+  const ids = ['town','levelScreen','missionsPanel','shopPanel','collectPanel','avatarModal','shopPanel','theoryModal'];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList && el.classList.add('hidden'); });
+}
+function showSection(id){
+  const mainIDs = ['town','levelScreen','missionsPanel','shopPanel','collectPanel','avatarModal','avatarModal','shopPanel'];
+  mainIDs.forEach(i=>{ const el=document.getElementById(i); if(el) el.classList && el.classList.add('hidden'); });
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('hidden');
+}
+function goHome(){ window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* ---------------- THEORY modal (like testbor) ---------------- */
+const THEORIES = {
+  'Сложение': {title:'Сложение', text:'Сложение — это действие сложения двух чисел. Складываем их, получаем сумму.', example:'3 + 2 = 5. Пример: 7 + 4 = 11.'},
+  'Вычитание': {title:'Вычитание', text:'Вычитание — действие, при котором из первого числа вычитают второе.', example:'5 - 2 = 3. Пример: 8 - 3 = 5.'},
+  'Таблица умножения': {title:'Таблица умножения', text:'Умножение — повторное сложение. Таблица умножения помогает быстро считать.', example:'3 × 4 = 12.'},
+  'Слова и чтение': {title:'Слова и чтение', text:'Учим слова, повторяем произношение и правописание.', example:'cat — кошка, dog — собака.'}
+};
+let theoryNextLevel = {buildingId:null, level:1};
+function openTheory(topic){
+  const t = THEORIES[topic] || {title:topic, text:'Теория временно недоступна', example:''};
+  document.getElementById('theoryTitle').textContent = t.title;
+  document.getElementById('theoryText').textContent = t.text;
+  document.getElementById('theoryExample').textContent = t.example;
+  theoryNextLevel = {buildingId: state.currentBuilding || 'math', level:1, topic:topic};
+  document.getElementById('theoryModal').style.display = 'flex';
+}
+function closeTheory(){ document.getElementById('theoryModal').style.display = 'none'; }
+function startLevelFromTheory(){
+  const b = theoryNextLevel.buildingId || 'math';
+  const lvl = theoryNextLevel.level || 1;
+  document.getElementById('theoryModal').style.display = 'none';
+  openLevel(b,lvl);
+}
+
+/* ---------------- QUESTIONS bank (adaptive) ---------------- */
+const QUESTIONS = {
+  math: {
+    easy: [
+      {q:"2 + 3 = ?", options:[4,5,6,7], correct:5},
+      {q:"1 + 4 = ?", options:[3,5,6,7], correct:5}
+    ],
+    medium: [
+      {q:"12 - 5 = ?", options:[6,7,8,9], correct:7},
+      {q:"3 × 4 = ?", options:[9,10,11,12], correct:12}
+    ],
+    hard: [
+      {q:"18 ÷ 3 = ?", options:[4,5,6,7], correct:6},
+      {q:"7 × 8 = ?", options:[54,56,58,64], correct:56}
+    ]
+  },
+  eng: {
+    easy: [
+      {q:"dog — это?", options:["кот","собака","птица","рыба"], correct:"собака"},
+      {q:"sun — это?", options:["луна","небо","солнце","земля"], correct:"солнце"}
+    ],
+    medium: [
+      {q:"Выбери правильное слово: 'I ___ a book'", options:["am read","read","reads","reading"], correct:"read"}
+    ],
+    hard: [
+      {q:"Переведи: 'She usually gets up at 6'", options:["Она всегда ложится в 6","Она обычно встаёт в 6","Она никогда не встаёт в 6","Она иногда встаёт в 6"], correct:"Она обычно встаёт в 6"}
+    ]
+  }
+};
+
+/* ---------------- Adaptive difficulty ---------------- */
+function updateDifficulty(correct){
+  if(correct) state.difficulty.streak = (state.difficulty.streak||0)+1;
+  else state.difficulty.streak = 0;
+
+  if(correct && state.difficulty.streak >= 3){
+    if(state.currentSubject) state.difficulty[state.currentSubject] = Math.min(3, (state.difficulty[state.currentSubject]||1)+1);
+    state.difficulty.streak = 0;
+  }
+  if(!correct && state.currentSubject){
+    state.difficulty[state.currentSubject] = Math.max(1, (state.difficulty[state.currentSubject]||1)-1);
+  }
+  saveState();
+}
+
+/* choose question based on adaptive difficulty */
+function getAdaptiveQuestion(subject){
+  let lvl = state.difficulty[subject] || 1;
+  const bank = lvl === 1 ? QUESTIONS[subject].easy :
+               lvl === 2 ? QUESTIONS[subject].medium :
+                           QUESTIONS[subject].hard;
+  return bank[Math.floor(Math.random()*bank.length)];
+}
+
+/* ---------------- Level flow (openLevel -> theory -> game) ---------------- */
+function openLevel(buildingId, level){
+  state.currentBuilding = buildingId; theoryNextLevel = {buildingId, level};
+  // choose topic mapping
+  const topic = buildingId==='math' ? 'Сложение' : (buildingId==='english' ? 'Слова и чтение' : 'Сложение');
+  const t = THEORIES[topic] || {text:'', example:''};
+  document.getElementById('theoryTitle').textContent = topic;
+  document.getElementById('theoryText').textContent = t.text;
+  document.getElementById('theoryExample').textContent = t.example;
+  document.getElementById('theoryModal').style.display = 'flex';
+}
+
+/* start after theory */
+function startLevelFromTheory(){
+  const b = theoryNextLevel.buildingId || 'math';
+  const l = theoryNextLevel.level || 1;
+  document.getElementById('theoryModal').style.display = 'none';
+  startAdaptiveLevel(b,l);
+}
+
+/* start an adaptive level: pick question type by subject */
+function startAdaptiveLevel(buildingId, level){
+  state.currentSubject = buildingId==='math' ? 'math' : (buildingId==='english' ? 'eng' : 'math');
+  // clear UI
+  showSection('levelScreen');
+  document.getElementById('levelHeader').textContent = `Уровень ${level}`;
+  // pick question by adaptive difficulty
+  if(state.currentSubject === 'math'){
+    const q = getAdaptiveQuestion('math');
+    renderQuestion(q, 'math');
+  } else if(state.currentSubject === 'eng'){
+    const q = getAdaptiveQuestion('eng');
+    renderQuestion(q, 'eng');
+  } else {
+    startFallback(level);
+  }
+}
+
+/* render question UI */
+function renderQuestion(q, subject){
+  document.getElementById('fallbackGame').classList.remove('hidden');
+  document.getElementById('collectWord').classList.add('hidden');
+  document.getElementById('catchGame').classList.add('hidden');
+  document.getElementById('questionText').textContent = q.q;
+  const box = document.getElementById('optionsBox'); box.innerHTML='';
+  q.options.forEach(opt=>{
+    const b = document.createElement('div'); b.className='option'; b.style.cssText='padding:10px;border-radius:8px;background:#f6fbff;border:1px solid rgba(46,136,240,0.06);text-align:center;cursor:pointer;font-weight:700';
+    b.textContent = opt;
+    b.onclick = ()=>{
+      const isCorrect = (opt === q.correct);
+      handleAnswer(subject, isCorrect, q);
+      // small visual feedback
+      b.style.background = isCorrect ? 'linear-gradient(135deg,#7ED321,#b7ff9b)' : 'linear-gradient(135deg,#ffb3b3,#ffdbdb)';
+      setTimeout(()=>{ renderTown(); showTown(); },700);
+    };
+    box.appendChild(b);
+  });
+}
+
+/* handle answer result: update difficulty, rewards, leagues, AI data */
+function handleAnswer(subject, correct, q){
+  updateDifficulty(correct);
+  // update AI metrics
+  if(subject === 'math'){
+    if(!correct) state.aiData.mathErrors = (state.aiData.mathErrors||0) + 1;
+    else state.aiData.mathLevel = Math.min(10, (state.aiData.mathLevel||1)+1);
+  } else if(subject === 'eng'){
+    if(!correct) state.aiData.engErrors = (state.aiData.engErrors||0) + 1;
+    else state.aiData.engLevel = Math.min(10, (state.aiData.engLevel||1)+1);
+  }
+  // rewards & progression
+  if(correct){
+    const coinGain = subject === 'math' ? 12 : 10;
+    state.user.coins = (state.user.coins||0) + coinGain;
+    // update progress percent
+    if(state.currentSubject === 'math') state.progress.math = Math.min(100,(state.progress.math||0) + Math.round(100/6));
+    if(state.currentSubject === 'eng') state.progress.eng = Math.min(100,(state.progress.eng||0) + Math.round(100/6));
+    // league/tournament
+    addLeaguePoints(10);
+    addTournamentProgress();
+    addScoreToLeaderboard(state.user.name || 'Игрок', 10);
+    // achievements
+    if(!state.user.ach.includes('Первая победа')) state.user.ach.push('Первая победа');
+    showCoin(coinGain);
+  } else {
+    // penalty or hint
+    // reduce league small
+    addLeaguePoints(-2);
+  }
+  saveState(); updateUI(); renderCollections(); renderMissions(); renderLeaderboardUI();
+}
+
+/* ---------------- Fallback & existing games preserved ---------------- */
+const MATH_Q = [
+  {q:'7 + 3 = ?', ans:10, opts:[8,10,11,9]},
+  {q:'5 + 4 = ?', ans:9, opts:[9,10,8,11]},
+  {q:'2 + 6 = ?', ans:8, opts:[7,8,9,6]}
+];
+function startFallback(level){
+  showSection('levelScreen'); document.getElementById('levelHeader').textContent = `Уровень ${level}`; 
+  document.getElementById('fallbackGame').classList.remove('hidden'); document.getElementById('collectWord').classList.add('hidden'); document.getElementById('catchGame').classList.add('hidden');
+  const q = MATH_Q[(level-1)%MATH_Q.length]; document.getElementById('questionText').textContent = q.q;
+  const box = document.getElementById('optionsBox'); box.innerHTML='';
+  q.opts.forEach(opt=>{
+    const b = document.createElement('div'); b.className='option'; b.textContent = opt;
+    b.onclick = ()=>{ const ok = (opt===q.ans); handleAnswer('math', ok, q); b.style.background = ok ? 'linear-gradient(135deg,#7ED321,#b7ff9b)' : 'linear-gradient(135deg,#ffb3b3,#ffdbdb)'; setTimeout(()=>{ renderTown(); showTown(); },700); };
+    box.appendChild(b);
+  });
+}
+
+/* ---------------- Collect word (ENG) - preserved ---------------- */
+let collectState = {word:'', scrambled:[], assembled:[]};
+const ENG_WORDS = [{word:'cat',hint:'Кошка'},{word:'dog',hint:'Собака'},{word:'apple',hint:'Яблоко'}];
+function startCollect(level){
+  showSection('levelScreen'); document.getElementById('levelHeader').textContent = `Уровень ${level}`; 
+  document.getElementById('fallbackGame').classList.add('hidden'); document.getElementById('collectWord').classList.remove('hidden'); document.getElementById('catchGame').classList.add('hidden');
+  const item = ENG_WORDS[(level-1)%ENG_WORDS.length];
+  collectState.word = item.word.toUpperCase();
+  collectState.scrambled = shuffle(collectState.word.split(''));
+  collectState.assembled = [];
+  document.getElementById('collectHint').textContent = `Подсказка: ${item.hint}`;
+  renderCollect();
+
+}  
+function renderCollect(){
+  const s = document.getElementById('scrambledArea'); s.innerHTML=''; collectState.scrambled.forEach((ch,i)=>{
+    const el = document.createElement('div'); el.className='letter'; el.textContent=ch; el.style.cssText='display:inline-block;padding:8px;margin:4px;background:#f4fbff;border-radius:6px;cursor:pointer';
+    el.onclick = ()=>{ collectState.scrambled.splice(i,1); collectState.assembled.push(ch); renderCollect(); };
+    s.appendChild(el);
+  });
+  const a = document.getElementById('assembledArea'); a.innerHTML=''; collectState.assembled.forEach((ch,i)=>{
+    const el = document.createElement('div'); el.className='letter'; el.textContent=ch; el.style.cssText='display:inline-block;padding:8px;margin:4px;background:#fff5ea;border-radius:6px;cursor:pointer';
+    el.onclick = ()=>{ collectState.assembled.splice(i,1); collectState.scrambled.push(ch); renderCollect(); };
+    a.appendChild(el);
+  });
+}
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr; }
+function shuffleCollected(){ collectState.scrambled = shuffle(collectState.scrambled); renderCollect(); }
+function checkCollected(){
+  const formed = collectState.assembled.join('');
+  if(formed === collectState.word){ handleAnswer('eng', true, {q:'слово', correct:collectState.word}); unlockNext('eng'); addCollection('stickers','Стикер-'+collectState.word); setTimeout(()=>{ renderTown(); showTown(); },700); } else { handleAnswer('eng', false, {q:'слово', correct:collectState.word}); }
+} 
+
+/* ---------------- Catch game (Math) - preserved ---------------- */
+let catchTimer=null;
+function startCatch(level){
+  showSection('levelScreen'); document.getElementById('levelHeader').textContent = `Уровень ${level}`; 
+  document.getElementById('fallbackGame').classList.add('hidden'); document.getElementById('collectWord').classList.add('hidden'); document.getElementById('catchGame').classList.remove('hidden');
+  const q = MATH_Q[(level-1)%MATH_Q.length];
+  document.getElementById('catchHint').textContent = q.q;
+  const area = document.getElementById('catchArea'); area.innerHTML='';
+  if(catchTimer) clearInterval(catchTimer);
+  catchTimer = setInterval(()=> spawnFall(area,q),700);
+}
+function spawnFall(area,q){
+  const item = document.createElement('div'); item.className='fall'; item.style.cssText='position:absolute;padding:8px;border-radius:8px;background:#fff;box-shadow:0 6px 14px rgba(0,0,0,0.08);';
+  const isCorrect = Math.random() < 0.35;
+  const val = isCorrect ? q.ans : q.opts[Math.floor(Math.random()*q.opts.length)];
+  item.textContent = val;
+  const left = Math.random()*(area.clientWidth-80);
+  item.style.left = left+'px';
+  area.appendChild(item);
+  const duration = 3000 + Math.random()*2000;
+  const start = performance.now();
+  function frame(t){
+    const p = Math.min(1,(t-start)/duration);
+    item.style.top = (p*(area.clientHeight+60)-40)+'px';
+    if(p<1) requestAnimationFrame(frame);
+    else { if(item.parentNode) item.parentNode.removeChild(item); }
+  }
+  requestAnimationFrame(frame);
+  item.onclick = ()=>{
+    const ok = isCorrect;
+    handleAnswer('math', ok, q);
+    if(item.parentNode) item.parentNode.removeChild(item);
+  };
+}
+function stopCatch(){ if(catchTimer) clearInterval(catchTimer); catchTimer=null; document.getElementById('catchArea').innerHTML=''; renderTown(); showTown(); }
+
+/* ---------------- Rewards, progress, collections ---------------- */
+function showCoin(n){
+  const el = document.getElementById('coinPopup'); document.getElementById('coinVal').textContent = n; el.style.display='block';
+  setTimeout(()=> el.style.display='none',900);
+}
+
+function unlockNext(subject){
+  state.unlocked[subject] = Math.min(6,(state.unlocked[subject]||1)+1);
+  saveState(); updateUI();
+}
+
+function addCollection(type,name){
+  if(!state.collections[type]) state.collections[type]=[];
+  state.collections[type].push({id:uid(),name:name,date:Date.now()});
+  saveState(); renderCollections();
+}
+
+/* ---------------- Shop & avatars ---------------- */
+const AVATARS = [
+  {id:'av1', src:'https://i.imgur.com/8Km9tLL.png', price:0},
+  {id:'av2', src:'https://i.imgur.com/5tj6S7O.png', price:40},
+  {id:'av3', src:'https://i.imgur.com/Azqg2yL.png', price:70},
+  {id:'av4', src:'https://i.imgur.com/8pOaG0q.png', price:120}
+];
+function openShop(){ populateShop(); showSection('shopPanel'); }
+function populateShop(){
+  const grid = document.getElementById('shopGrid'); grid.innerHTML='';
+  AVATARS.forEach(a=>{
+    const item = document.createElement('div'); item.className='shop-item';
+    item.innerHTML = `<img src="${a.src}" class="avatar-item"><div style="flex:1"><div style="font-weight:800">Аватар</div><div class="muted">Цена: ${a.price}</div></div><div><button class="btn-primary" onclick="buyAvatar('${a.id}',${a.price})">${state.shop[a.id] ? 'Выбрать' : 'Купить'}</button></div>`;
+    grid.appendChild(item);
+  });
+}
+function buyAvatar(id, price){
+  if(!state.shop) state.shop={};
+  const avatar = AVATARS.find(x=>x.id===id);
+  if(state.shop[id]){ state.user.avatar = avatar.src; saveState(); updateUI(); alert('Аватар выбран'); return; }
+  if(state.user.coins < price){ alert('Недостаточно монет'); return; }
+  state.user.coins -= price; state.shop[id] = true; state.user.avatar = avatar.src;
+  saveState(); updateUI(); populateShop(); alert('Покупка успешна и аватар установлен!');
+}
+function openAvatarPicker(){ const m = document.getElementById('avatarModal'); const p = document.getElementById('avatarPicker'); p.innerHTML=''; AVATARS.forEach(a=>{ const img = document.createElement('img'); img.src=a.src; img.className='avatar-item'; img.style.width='70px'; img.style.height='70px'; img.onclick=()=>{ state.user.avatar=a.src; saveState(); updateUI(); alert('Аватар установлен'); }; p.appendChild(img); }); m.style.display='flex'; }
+function closeAvatarModal(){ document.getElementById('avatarModal').style.display='none'; }
+
+/* ---------------- Missions (weekly auto-refresh) ---------------- */
+function getWeekStartTs(date){
+  const d = new Date(date); const day = (d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d.getTime();
+}
+function generateWeeklyMissions(){
+  const templates = [
+    {text:'Пройти 10 уровней', reward:{coins:100, xp:20, item:'box'}},
+    {text:'Выиграть 3 мини-игры', reward:{coins:80}},
+    {text:'Собрать 2 новых стикера', reward:{coins:60}},
+    {text:'Изучить 1 новую тему', reward:{coins:50}},
+    {text:'Помочь TeacherBot выполнить задание', reward:{coins:70}}
+  ];
+  const shuffled = templates.sort(()=>Math.random()-0.5);
+  const chosen = shuffled.slice(0,3).map(t=>({id:uid(), text:t.text, done:false, reward:t.reward}));
+  return chosen;
+}
+function ensureWeeklyMissions(){
+  const now = Date.now();
+  const weekStart = getWeekStartTs(now);
+  if(!state.missions.weekStart || state.missions.weekStart !== weekStart){
+    state.missions.weekStart = weekStart;
+    state.missions.list = generateWeeklyMissions();
+    saveState();
+  }
+}
+function renderMissions(){
+  ensureWeeklyMissions();
+  const list = document.getElementById('missionsList'); list.innerHTML='';
+  state.missions.list.forEach(m=>{
+    const el = document.createElement('div'); el.className='mission'+(m.done?' done':'');
+    el.innerHTML = `<div><strong>${m.text}</strong><div class="muted" style="font-size:13px">Награда: ${m.reward.coins||0} монет</div></div><div><button class="btn-primary" onclick="claimMission('${m.id}')">${m.done ? 'Забрать' : 'В процессе'}</button></div>`;
+    list.appendChild(el);
+  });
+}
+function claimMission(id){
+  const m = state.missions.list.find(x=>x.id===id);
+  if(!m) return;
+  if(!m.done){ alert('Миссия ещё не выполнена.'); return; }
+  state.user.coins += (m.reward.coins || 0);
+  state.missions.list = state.missions.list.filter(x=>x.id!==id);
+  saveState(); updateUI(); renderMissions();
+  alert('Награда получена!');
+}
+function completeMissionByIndex(i){
+  if(state.missions.list[i]){ state.missions.list[i].done = true; saveState(); renderMissions(); }
+}
+function showMissions(){ showSection('missionsPanel'); renderMissions(); renderCollections(); }
+
+/* ---------------- Collections rendering ---------------- */
+function renderCollections(){
+  const c = document.getElementById('collectionsGrid'); c.innerHTML='';
+  const stickers = state.collections.stickers || [];
+  const items = state.collections.items || [];
+  const all = stickers.concat(items);
+  if(all.length===0){ c.innerHTML = '<div class="muted">Коллекция пуста — получай стикеры в миссиях и мини-играх!</div>'; return; }
+  all.forEach(it=>{
+    const el = document.createElement('div'); el.className='collect-item'; el.textContent = it.name; c.appendChild(el);
+  });
+}
+
+// =======================================
+// EduPlay — Школьный городок с умным AI Teacher
+// =======================================
+
+// Класс умного учителя
+class AIteacher {
+    constructor(name = "AI Teacher") {
+        this.name = name;
+        this.knowledgeBase = {
+            math: [
+                { question: "2 + 2 = ?", answer: "4" },
+                { question: "5 * 3 = ?", answer: "15" },
+                { question: "10 / 2 = ?", answer: "5" }
+            ],
+            english: [
+                { question: "Translate 'cat' to Russian.", answer: "кот" },
+                { question: "Translate 'house' to Russian.", answer: "дом" },
+                { question: "Translate 'book' to Russian.", answer: "книга" }
+            ]
+        };
+        this.progress = {};
+        console.log(`${this.name} готов к обучению!`);
+    }
+
+    // Выдать задание ученику
+    askTask(studentName, subject) {
+        if (!this.knowledgeBase[subject]) {
+            console.log(`Извините, у меня нет заданий по предмету: ${subject}`);
+            return null;
+        }
+        const tasks = this.knowledgeBase[subject];
+        const task = tasks[Math.floor(Math.random() * tasks.length)];
+        console.log(`${this.name} задает ученику ${studentName}: ${task.question}`);
+        return task;
+    }
+
+    // Проверить ответ ученика
+    checkAnswer(studentName, subject, studentAnswer, correctAnswer) {
+        if (!this.progress[studentName]) this.progress[studentName] = {};
+        if (!this.progress[studentName][subject]) this.progress[studentName][subject] = { correct: 0, total: 0 };
+
+        this.progress[studentName][subject].total += 1;
+        if (studentAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+            this.progress[studentName][subject].correct += 1;
+            console.log(`${this.name}: Отлично, ${studentName}! Ответ правильный ✅`);
+        } else {
+            console.log(`${this.name}: Неправильно, ${studentName}. Правильный ответ: ${correctAnswer} ❌`);
+        }
+    }
+
+    // Показать прогресс ученика
+    showProgress(studentName) {
+        if (!this.progress[studentName]) {
+            console.log(`${this.name}: У ученика ${studentName} пока нет прогресса.`);
+            return;
+        }
+        console.log(`=== Прогресс ${studentName} ===`);
+        for (const subject in this.progress[studentName]) {
+            const p = this.progress[studentName][subject];
+            const percent = ((p.correct / p.total) * 100).toFixed(1);
+            console.log(`${subject}: ${p.correct} из ${p.total} (${percent}%)`);
+        }
+        console.log("=======================");
+    }
+
+    // Добавить новое задание в базу знаний
+    addTask(subject, question, answer) {
+        if (!this.knowledgeBase[subject]) this.knowledgeBase[subject] = [];
+        this.knowledgeBase[subject].push({ question, answer });
+        console.log(`${this.name}: Новое задание добавлено по предмету ${subject}`);
+    }
+}
+
+// ================================
+// Инициализация EduPlay
+// ================================
+class EduPlay {
+    constructor() {
+        this.students = {};
+        this.teacher = new AIteacher("EduBot"); // Подключаем нового умного учителя
+    }
+
+    // Добавить ученика
+    addStudent(name) {
+        this.students[name] = { name };
+        console.log(`Ученику ${name} присвоен умный учитель ${this.teacher.name}`);
+    }
+
+    // Выдать задание ученику
+    askTask(studentName, subject) {
+        const task = this.teacher.askTask(studentName, subject);
+        return task;
+    }
+
+    // Проверка ответа ученика
+    submitAnswer(studentName, subject, studentAnswer, correctAnswer) {
+        this.teacher.checkAnswer(studentName, subject, studentAnswer, correctAnswer);
+    }
+
+    // Показать прогресс ученика
+    showProgress(studentName) {
+        this.teacher.showProgress(studentName);
+    }
+
+    // Добавить новое задание
+    addTask(subject, question, answer) {
+        this.teacher.addTask(subject, question, answer);
+    }
+}
+
+// ================================
+// Пример использования
+// ================================
+const eduPlay = new EduPlay();
+eduPlay.addStudent("София");
+
+// Учитель задает случайное задание
+const task = eduPlay.askTask("София", "math");
+
+// Ученица отвечает
+if (task) {
+    eduPlay.submitAnswer("София", "math", "4", task.answer);
+}
+
+// Показать прогресс
+eduPlay.showProgress("София");
+
+// Добавить новое задание
+eduPlay.addTask("math", "7 + 5 = ?", "12");
+
+
+/* ---------------- Teacher bot (simple rule-based & TTS) ---------------- */
+const bot = {
+  last:'', respond(t){
+    const txt = (t||'').toLowerCase();
+    let reply = "Не понял. Спроси: 'объясни сложение' или 'дай задание'.";
+    if(txt.includes('слож') || txt.includes('+')) reply = "Сложение: складываем два числа. Пример: 4 + 3 = 7. Попробуй: 2 + 5.";
+    if(txt.includes('выч') || txt.includes('-')) reply = "Вычитание: 7 - 2 = 5. Вычитаем второе число.";
+    if(txt.includes('дайте') || txt.includes('задание') || txt.includes('зад')) reply = "Задание: пройди 3 уровня или сыграй в 2 мини-игры. Удачи!";
+    if(txt.includes('привет')) reply = "Привет! Я TeacherBot — твой помощник. Могу объяснять темы и давать задания.";
+    this.last = reply; return reply;
+  }
+};
+function appendChat(text, who){
+  const box = document.getElementById('chatBox'); const el = document.createElement('div'); el.className='message '+(who==='user'?'msg-user':'msg-bot'); el.textContent = text; box.appendChild(el); box.scrollTop = box.scrollHeight;
+}
+function sendBot(){
+  const v = document.getElementById('chatInput').value.trim(); if(!v) return; appendChat(v,'user'); document.getElementById('chatInput').value='';
+  const r = bot.respond(v); setTimeout(()=>{ appendChat(r,'bot'); },400);
+}
+function botSpeakLast(){ const text = bot.last || 'Я могу помочь с теорией и заданиями.'; if('speechSynthesis' in window){ const u = new SpeechSynthesisUtterance(text); u.lang='ru-RU'; speechSynthesis.speak(u); } else alert('Озвучивание недоступно'); }
+function botSuggest(){ const s = "Задача: за сегодня пройти 3 уровня подряд. Удачи!"; appendChat(s,'bot'); bot.last = s; }
+
+/* ---------------- AI Learning Path (simple rule-based) ---------------- */
+const AILearningPath = {
+  load(){
+    // reads from state.aiData (already present)
+  },
+  getRecommendations(){
+    const rec = [];
+    const math = state.progress.math || 0;
+    const eng = state.progress.eng || 0;
+    if(math < 30) rec.push("🔢 Начни с базового сложения и вычитания (уровни 1–2 в Классе Математики).");
+    else if(math < 60) rec.push("🧮 Изучай таблицу умножения (уровни 3–4).");
+    else rec.push("📘 Решай сложные задачи и мини-игры (уровни 5–6).");
+    if(eng < 30) rec.push("🔤 Учим базовые слова (уровни 1–2 в Библиотеке).");
+    else if(eng < 60) rec.push("📚 Собирать слова и пазлы (уровни 3–4).");
+    else rec.push("🗣 Практикуй чтение и произношение (уровни 5–6).");
+    // personalize further using aiData errors
+    if(state.aiData.mathErrors > state.aiData.engErrors) rec.push("⚠ AI: у тебя больше ошибок в математике — сосредоточься на практике.");
+    return rec;
+  }
+};
+
+function updateAIPath(){
+  const box = document.getElementById('aiPathBox'); box.innerHTML='';
+  const items = AILearningPath.getRecommendations();
+  items.forEach(it=>{
+    const row = document.createElement('div'); row.className='mission'; row.innerHTML = `<div>${it}</div>`; box.appendChild(row);
+  });
+}
+
+/* ---------------- LEAGUES & TOURNAMENTS (frontend-only) ---------------- */
+const leagues = [
+  { name: "Бронза", min: 0, max: 199 },
+  { name: "Серебро", min: 200, max: 499 },
+  { name: "Золото", min: 500, max: 999 },
+  { name: "Платина", min: 1000, max: 1999 },
+  { name: "Алмаз", min: 2000, max: 3999 },
+  { name: "Мастер", min: 4000, max: 999999 }
+];
+
+function getLeagueByPoints(pts){
+  for(const lg of leagues) if(pts >= lg.min && pts <= lg.max) return lg;
+  return leagues[0];
+}
+
+function addLeaguePoints(amount){
+  state.leaguePoints = (state.leaguePoints||0) + amount;
+  if(state.leaguePoints < 0) state.leaguePoints = 0;
+  saveState();
+  updateLeagueUI();
+}
+
+function updateLeagueUI(){
+  const lg = getLeagueByPoints(state.leaguePoints||0);
+  document.getElementById('userLeague').textContent = lg.name;
+  document.getElementById('leaguePoints').textContent = state.leaguePoints||0;
+  document.getElementById('leagueProgressText').textContent = `До следующей лиги: ${Math.max(0, lg.max - (state.leaguePoints||0))} очков`;
+}
+
+/* Tournament progress */
+function addTournamentProgress(){
+  state.tournamentProgress = (state.tournamentProgress||0) + 1;
+  if(state.tournamentProgress > 5) state.tournamentProgress = 5;
+  saveState(); updateTournamentUI();
+}
+function updateTournamentUI(){ document.getElementById('tournamentProgress').textContent = state.tournamentProgress || 0; }
+
+/* Leaderboard */
+function addScoreToLeaderboard(name, score){
+  if(!name) name = 'Игрок';
+  const board = state.leaderboard || [];
+  board.push({name,score,ts:Date.now()});
+  board.sort((a,b)=>b.score - a.score);
+  state.leaderboard = board.slice(0,50); // keep top50
+  saveState(); renderLeaderboardUI();
+}
+function renderLeaderboardUI(){
+  const list = document.getElementById('leaderboardList'); if(!list) return;
+  const board = state.leaderboard || [];
+  let html = '';
+  board.slice(0,10).forEach((p,i)=> html += `<li>${i+1}. ${p.name} — ${p.score} очков</li>`);
+  list.innerHTML = html || '<li class="muted">Пока нет результатов — играй первым!</li>';
+}
+
+/* Tournament panel controls */
+function openTournaments(){ document.getElementById('tournamentPanel').classList.remove('hidden'); updateLeagueUI(); renderLeaderboardUI(); updateTournamentUI(); }
+function closeTournaments(){ document.getElementById('tournamentPanel').classList.add('hidden'); }
+
+/* ---------------- AI + adaptive save on answer hooks integrated above ---------------- */
+
+/* ---------------- Init render ---------------- */
+function init(){
+  renderTown();
+  renderCollections();
+  updateUI();
+  ensureWeeklyMissions();
+  populateShop();
+  updateAIPath();
+  updateLeagueUI();
+  renderLeaderboardUI();
+  updateTournamentUI();
+} Picker
+init();
+
+/* ---------------- small helpers & login ---------------- */
+function promptLogin(){ document.getElementById('loginModal').style.display='flex'; }
+function closeLogin(){ document.getElementById('loginModal').style.display='none'; }
+function doLogin(){ const name = document.getElementById('nameInput').value.trim(); const cls = document.getElementById('classInput').value; if(!name||!cls){ alert('Введите имя и класс'); return; } state.user.name = name; state.user.cls = cls; saveState(); updateUI(); closeLogin(); renderTown(); }
+function openProfile(){ if(!state.user.name){ promptLogin(); return; } window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* ---------------- helper functions reused earlier ---------------- */
+function showTown(){ renderTown(); showSection('town'); }
+function openShop(){ populateShop(); showSection('shopPanel'); renderTown(); }
+
+/* ---------------- Leaderboard render function alias ---------------- */
+function renderLeaderboard(){ renderLeaderboardUI(); }
+
+/* ---------------- ensure save on unload ---------------- */
+window.addEventListener('beforeunload', ()=>{ saveState(); if(catchTimer) clearInterval(catchTimer); });
+
+</script>
+</body>
+</html>

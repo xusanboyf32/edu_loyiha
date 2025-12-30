@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мини-игры - Falak{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-gamepad me-2"></i>Мини-игры</h2>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-primary fs-6 me-3">
+                        <i class="fas fa-coins me-1"></i>{{ total_coins }} монет
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Игры по зданиям -->
+    {% for building_type, games in games_by_building.items %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        {% if building_type == 'school' %}🏫 Школа
+                        {% elif building_type == 'library' %}📚 Библиотека
+                        {% elif building_type == 'lab' %}🔬 Лаборатория
+                        {% elif building_type == 'gym' %}⚽ Спортзал
+                        {% elif building_type == 'art' %}🎨 Арт-студия
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for game in games %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <span class="badge bg-{{ game.difficulty|yesno:'success,warning,danger' }} rounded-pill">
+                                            {{ game.get_difficulty_display }}
+                                        </span>
+                                        <span class="badge bg-warning rounded-pill">
+                                            <i class="fas fa-coins me-1"></i>{{ game.reward_coins }}
+                                        </span>
+                                    </div>
+                                    
+                                    <h6 class="card-title">{{ game.name }}</h6>
+                                    <p class="card-text small text-muted">{{ game.description }}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <span class="badge bg-info rounded-pill">
+                                            {{ game.get_game_type_display }}
+                                        </span>
+                                        <a href="{% url 'play_game' game.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-play me-1"></i>Играть
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p class="text-muted">В этом здании пока нет игр</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Статистика игр -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Твоя статистика</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4 class="text-primary">{{ user_results.count }}</h4>
+                            <p class="text-muted mb-0">Игр сыграно</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-success">{{ completed_games }}</h4>
+                            <p class="text-muted mb-0">Игр пройдено</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-warning">{{ total_coins_earned }}</h4>
+                            <p class="text-muted mb-0">Монет заработано</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-info">{{ average_score }}</h4>
+                            <p class="text-muted mb-0">Средний счет</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

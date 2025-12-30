@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Достижения - Falak{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-trophy me-2"></i>Достижения</h2>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-primary fs-6 me-3">
+                        <i class="fas fa-coins me-1"></i>{{ total_coins }} монет
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика достижений -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ user_achievements.count }}</h3>
+                    <small>Получено</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ available_achievements.count }}</h3>
+                    <small>Доступно</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ user_achievements|length|add:available_achievements|length }}</h3>
+                    <small>Всего</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ user_achievements|default_if_none:""|length|add:available_achievements|length|mul:100|div:100 }}%</h3>
+                    <small>Прогресс</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Полученные достижения -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Полученные достижения</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_achievements %}
+                    <div class="row">
+                        {% for user_achievement in user_achievements %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="badge bg-success rounded-circle me-2" style="font-size: 1.5rem;">
+                                            {{ user_achievement.achievement.icon }}
+                                        </span>
+                                        <div>
+                                            <h6 class="mb-1">{{ user_achievement.achievement.name }}</h6>
+                                            <small class="text-muted">{{ user_achievement.achievement.description }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-coins me-1"></i>{{ user_achievement.achievement.reward_coins }} монет
+                                        </span>
+                                        <small class="text-muted">
+                                            {{ user_achievement.unlocked_at|date:"d.m.Y H:i" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-trophy fa-3x text-muted mb-3"></i>
+                        <h5>Пока нет достижений</h5>
+                        <p class="text-muted">Начни выполнять задания и играть в игры, чтобы получить первые достижения!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Доступные достижения -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Доступные достижения</h5>
+                </div>
+                <div class="card-body">
+                    {% if available_achievements %}
+                    <div class="row">
+                        {% for achievement in available_achievements %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-secondary opacity-75">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="badge bg-secondary rounded-circle me-2" style="font-size: 1.5rem;">
+                                            {{ achievement.icon }}
+                                        </span>
+                                        <div>
+                                            <h6 class="mb-1">{{ achievement.name }}</h6>
+                                            <small class="text-muted">{{ achievement.description }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-coins me-1"></i>{{ achievement.reward_coins }} монет
+                                        </span>
+                                        <small class="text-muted">
+                                            <i class="fas fa-lock me-1"></i>Не получено
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h5>Все достижения получены!</h5>
+                        <p class="text-muted">Ты настоящий герой! 🎉</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

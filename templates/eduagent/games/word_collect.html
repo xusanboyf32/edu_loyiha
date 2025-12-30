@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ game.title }} - Falak{% endblock %}
+
+{% block extra_css %}
+<style>
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.game-board {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.word-display {
+    font-size: 48px;
+    font-weight: bold;
+    margin: 30px 0;
+    letter-spacing: 10px;
+}
+
+.letter-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin: 30px 0;
+}
+
+.letter-card {
+    background: white;
+    color: #333;
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.letter-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.letter-card.selected {
+    background: #28a745;
+    color: white;
+    transform: scale(0.9);
+}
+
+.letter-card.used {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.game-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.found-words {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.found-word {
+    display: inline-block;
+    background: #28a745;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin: 5px;
+    font-weight: bold;
+}
+
+.game-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-game {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-submit {
+    background: #28a745;
+    color: white;
+}
+
+.btn-clear {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-hint {
+    background: #ffc107;
+    color: #333;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="game-container">
+        <!-- Заголовок игры -->
+        <div class="text-center mb-4">
+            <h2><i class="fas fa-spell-check me-2"></i>{{ game.title }}</h2>
+            <p class="text-muted">{{ game.description }}</p>
+        </div>
+
+        <!-- Статистика игры -->
+        <div class="game-stats">
+            <div class="stat-item">
+                <div class="stat-number" id="score">0</div>
+                <div class="stat-label">Очки</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="timer">0:00</div>
+                <div class="stat-label">Время</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="coins">{{ user_coins }}</div>
+                <div class="stat-label">Монеты</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="words-found">0</div>
+                <div class="stat-label">Слов найдено</div>
+            </div>
+        </div>
+
+        <!-- Игровое поле -->
+        <div class="game-board">
+            <h3>Составь слова из букв:</h3>
+            <div class="word-display" id="current-word">_ _ _ _ _</div>
+            
+            <div class="letter-grid" id="letter-grid">
+                <!-- Буквы будут добавлены через JavaScript -->
+            </div>
+            
+            <div class="game-controls">
+                <button class="btn-game btn-submit" onclick="submitWord()">
+                    <i class="fas fa-check me-2"></i>Проверить
+                </button>
+                <button class="btn-game btn-clear" onclick="clearSelection()">
+                    <i class="fas fa-times me-2"></i>Очистить
+                </button>
+                <button class="btn-game btn-hint" onclick="showHint()">
+                    <i class="fas fa-lightbulb me-2"></i>Подсказка
+                </button>
+            </div>
+        </div>
+
+        <!-- Найденные слова -->
+        <div class="found-words">
+            <h4>Найденные слова:</h4>
+            <div id="found-words-list">
+                <p class="text-muted">Пока не найдено ни одного слова</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let score = 0;
+let wordsFound = 0;
+let startTime = Date.now();
+let timerInterval;
+let selectedLetters = [];
+let foundWords = [];
+
+// Слова для поиска и доступные буквы
+const gameData = {
+    letters: ['С', 'Л', 'О', 'В', 'О', 'К', 'Р', 'У', 'С', 'Т', 'И', 'Ч'],
+    words: ['СЛОВО', 'РОСТ', 'КОРЬ', 'РУКА', 'ВОЛА', 'СТОК', 'КРОТ', 'СОК', 'ЛУК', 'ТОР']
+};
+
+// Инициализация игры
+function initGame() {
+    renderLetters();
+    startTimer();
+}
+
+// Отобразить буквы
+function renderLetters() {
+    const grid = document.getElementById('letter-grid');
+    grid.innerHTML = '';
+    
+    gameData.letters.forEach((letter, index) => {
+        const card = document.createElement('div');
+        card.className = 'letter-card';
+        card.textContent = letter;
+        card.dataset.index = index;
+        card.onclick = () => selectLetter(index);
+        grid.appendChild(card);
+    });
+}
+
+// Выбрать букву
+function selectLetter(index) {
+    const card = document.querySelector(`[data-index="${index}"]`);
+    
+    if (card.classList.contains('used')) return;
+    
+    if (card.classList.contains('selected')) {
+        // Убираем выбор
+        card.classList.remove('selected');
+        selectedLetters = selectedLetters.filter(i => i !== index);
+    } else {
+        // Добавляем выбор
+        card.classList.add('selected');
+        selectedLetters.push(index);
+    }
+    
+    updateWordDisplay();
+}
+
+// Обновить отображение слова
+function updateWordDisplay() {
+    const wordDisplay = document.getElementById('current-word');
+    const letters = selectedLetters.map(i => gameData.letters[i]);
+    wordDisplay.textContent = letters.join(' ') || '_ _ _ _ _';
+}
+
+// Проверить слово
+function submitWord() {
+    const word = selectedLetters.map(i => gameData.letters[i]).join('');
+    
+    if (word.length < 3) {
+        alert('Слово должно содержать минимум 3 буквы!');
+        return;
+    }
+    
+    if (foundWords.includes(word)) {
+        alert('Это слово уже найдено!');
+        return;
+    }
+    
+    if (gameData.words.includes(word)) {
+        // Правильное слово
+        foundWords.push(word);
+        wordsFound++;
+        score += word.length * 5;
+        
+        document.getElementById('score').textContent = score;
+        document.getElementById('words-found').textContent = wordsFound;
+        
+        updateFoundWords();
+        clearSelection();
+        
+        // Проверяем завершение игры
+        if (wordsFound === gameData.words.length) {
+            endGame();
+        }
+    } else {
+        // Неправильное слово
+        alert('Такого слова нет в списке!');
+        clearSelection();
+    }
+}
+
+// Очистить выбор
+function clearSelection() {
+    selectedLetters = [];
+    document.querySelectorAll('.letter-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    updateWordDisplay();
+}
+
+// Показать подсказку
+function showHint() {
+    const remainingWords = gameData.words.filter(w => !foundWords.includes(w));
+    if (remainingWords.length > 0) {
+        const hint = remainingWords[0];
+        alert(`Подсказка: попробуйте составить слово из ${hint.length} букв`);
+    }
+}
+
+// Обновить список найденных слов
+function updateFoundWords() {
+    const list = document.getElementById('found-words-list');
+    if (foundWords.length === 0) {
+        list.innerHTML = '<p class="text-muted">Пока не найдено ни одного слова</p>';
+    } else {
+        list.innerHTML = foundWords.map(word => 
+            '<span class="found-word">' + word + '</span>'
+        ).join('');
+    }
+}
+
+// Обновить таймер
+function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    document.getElementById('timer').textContent = minutes + ':' + seconds.toString().padStart(2, '0');
+}
+
+// Завершить игру
+function endGame() {
+    clearInterval(timerInterval);
+    
+    const totalTime = Math.floor((Date.now() - startTime) / 1000);
+    const earnedCoins = Math.floor(wordsFound * {{ game.reward_coins }} / gameData.words.length);
+    
+    alert('Игра завершена! Найдено слов: ' + wordsFound + ', заработано монет: ' + earnedCoins);
+    
+    // Отправляем результат на сервер
+    fetch('/games/play/{{ game.id }}/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: 'score=' + score + '&time_spent=' + totalTime
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Результат сохранен:', data);
+            window.location.href = '{% url "mini_games" %}';
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка сохранения результата:', error);
+    });
+}
+
+// Запустить таймер
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Получить CSRF токен
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Инициализация игры
+document.addEventListener('DOMContentLoaded', function() {
+    initGame();
+});
+</script>
+{% endblock %}

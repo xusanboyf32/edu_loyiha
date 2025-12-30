@@ -1,0 +1,938 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduAgent{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-light: #3B82F6;
+            --primary-dark: #1D4ED8;
+            --secondary: #4F46E5;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --light: #F9FAFB;
+            --dark: #1F2937;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --sidebar-width: 260px;
+            --header-height: 64px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Blur эффекты */
+        .card {
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            backdrop-filter: blur(12px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Темная тема */
+        [data-theme="dark"] {
+            --primary: #3B82F6;
+            --primary-light: #60A5FA;
+            --primary-dark: #2563EB;
+            --secondary: #6366F1;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --light: #1F2937;
+            --dark: #F9FAFB;
+            --gray-100: #111827;
+            --gray-200: #1F2937;
+            --gray-300: #374151;
+            --gray-400: #4B5563;
+            --gray-500: #6B7280;
+            --gray-600: #9CA3AF;
+            --gray-700: #D1D5DB;
+            --gray-800: #E5E7EB;
+            --gray-900: #F3F4F6;
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+        }
+
+        [data-theme="dark"] .card {
+            background: rgba(31, 38, 135, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] .sidebar {
+            background: rgba(17, 24, 39, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .main-content {
+            background: rgba(17, 24, 39, 0.8);
+        }
+
+        [data-theme="dark"] .top-nav {
+            background: rgba(17, 24, 39, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .menu-item {
+            color: white !important;
+        }
+
+        [data-theme="dark"] .menu-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary-light) !important;
+        }
+
+        [data-theme="dark"] .menu-item.active {
+            background-color: var(--primary);
+            color: white !important;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            color: white !important;
+        }
+
+        [data-theme="dark"] .theme-toggle:hover {
+            color: var(--primary-light) !important;
+        }
+
+        [data-theme="dark"] .notification-bell {
+            color: white !important;
+        }
+
+        [data-theme="dark"] .dropdown-item {
+            color: white !important;
+        }
+
+        [data-theme="dark"] .dropdown-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary-light) !important;
+        }
+
+        [data-theme="dark"] .dropdown-menu {
+            background: rgba(31, 38, 135, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .user-avatar {
+            background-color: var(--primary);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Стили для кнопки темы */
+        .theme-toggle {
+            border: none;
+            background: none;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            transform: scale(1.1);
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.9);
+            border-right: 1px solid rgba(255, 255, 255, 0.18);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 1px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-logo i {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            height: calc(100vh - var(--header-height));
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: var(--gray-50);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .menu-item i {
+            width: 24px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .menu-item .badge {
+            margin-left: auto;
+            background-color: var(--primary);
+            color: white;
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 10px;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background-color: var(--gray-200);
+            margin: 15px 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - var(--sidebar-width));
+            backdrop-filter: blur(4px);
+            background: rgba(249, 250, 251, 0.8);
+        }
+
+        .top-nav {
+            height: var(--header-height);
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-bell {
+            position: relative;
+            margin-right: 20px;
+            color: var(--gray-600);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 14px;
+        }
+
+        .dashboard-content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .menu-toggle {
+                display: block !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        /* Float кнопка ИИ-помощника */
+        .ai-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .ai-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(37, 99, 235, 0.4);
+        }
+
+        .ai-fab.active {
+            transform: rotate(45deg);
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+
+        /* Мини-меню ИИ-помощника */
+        .ai-mini-menu {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            max-height: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(31, 38, 135, 0.2);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-mini-menu.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mini-menu-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--primary);
+            color: white;
+        }
+
+        .mini-menu-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quick-action-btn {
+            padding: 12px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn i {
+            font-size: 18px;
+        }
+
+        .mini-chat {
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .mini-chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: var(--gray-100);
+        }
+
+        .mini-chat-input {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .mini-chat-input input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        .mini-chat-input button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .mini-menu-footer {
+            padding: 10px 15px;
+            border-top: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+
+        /* Темная тема для мини-меню */
+        [data-theme="dark"] .ai-mini-menu {
+            background: rgba(31, 38, 135, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .quick-action-btn {
+            background: var(--gray-700);
+            border-color: var(--gray-600);
+            color: var(--gray-300);
+        }
+
+        [data-theme="dark"] .quick-action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        [data-theme="dark"] .mini-chat-messages {
+            background: var(--gray-800);
+        }
+
+        [data-theme="dark"] .mini-chat-input {
+            background: var(--gray-700);
+            border-color: var(--gray-600);
+        }
+
+        [data-theme="dark"] .mini-chat-input input {
+            background: var(--gray-700);
+            color: white;
+        }
+
+        [data-theme="dark"] .mini-menu-footer {
+            background: var(--gray-800);
+            border-color: var(--gray-600);
+        }
+
+        /* Мини-сообщения */
+        .mini-message {
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            width: fit-content;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        .mini-message.user {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .mini-message.ai {
+            background: var(--gray-200);
+            color: var(--gray-800);
+            margin-right: auto;
+        }
+
+        .mini-message.typing {
+            font-style: italic;
+            opacity: 0.7;
+            width: fit-content;
+        }
+
+        [data-theme="dark"] .mini-message.ai {
+            background: var(--gray-700);
+            color: var(--gray-300);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'home' %}" class="sidebar-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>EduAgent</span>
+            </a>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'home' %}" class="menu-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                <span>Главная</span>
+            </a>
+            <a href="{% url 'courses' %}" class="menu-item {% if request.resolver_match.url_name == 'courses' %}active{% endif %}">
+                <i class="fas fa-book"></i>
+                <span>Курсы</span>
+                {% if courses_count %}<span class="badge">{{ courses_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'students' %}" class="menu-item {% if request.resolver_match.url_name == 'students' %}active{% endif %}">
+                <i class="fas fa-users"></i>
+                <span>Студенты</span>
+                {% if students_count %}<span class="badge">{{ students_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'quests' %}" class="menu-item {% if request.resolver_match.url_name == 'quests' %}active{% endif %}">
+                <i class="fas fa-tasks"></i>
+                <span>Задания</span>
+                {% if quests_count %}<span class="badge">{{ quests_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'video_lessons' %}" class="menu-item {% if request.resolver_match.url_name == 'video_lessons' %}active{% endif %}">
+                <i class="fas fa-video"></i>
+                <span>Видеоуроки</span>
+                {% if videos_count %}<span class="badge">{{ videos_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'eduplay_exercises' %}" class="menu-item {% if request.resolver_match.url_name == 'eduplay_exercises' %}active{% endif %}">
+                <i class="fas fa-school"></i>
+                <span>Школьный городок</span>
+            </a>
+            <a href="{% url 'mini_games' %}" class="menu-item {% if request.resolver_match.url_name == 'mini_games' %}active{% endif %}">
+                <i class="fas fa-gamepad"></i>
+                <span>Мини-игры</span>
+            </a>
+            <a href="{% url 'exercises' %}" class="menu-item {% if request.resolver_match.url_name == 'exercises' %}active{% endif %}">
+                <i class="fas fa-tasks"></i>
+                <span>Задания</span>
+                {% if exercises_count %}<span class="badge">{{ exercises_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'chatai:chat_page' %}" class="menu-item {% if request.resolver_match.url_name == 'chat_page' %}active{% endif %}">
+                <i class="fas fa-robot"></i>
+                <span>ИИ-помощник</span>
+            </a>
+            <div class="menu-divider"></div>
+            <a href="{% url 'settings' %}" class="menu-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                <i class="fas fa-cog"></i>
+                <span>Настройки</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Помощь</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-nav">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-link text-dark d-md-none me-2 menu-toggle" style="display: none;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">{% block page_title %}Главная панель{% endblock %}</h1>
+            </div>
+            <div class="user-menu">
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                    {% if notifications_count %}
+                    <span class="notification-badge">{{ notifications_count }}</span>
+                    {% endif %}
+                </div>
+                <button class="theme-toggle btn btn-link text-dark me-2" id="themeToggle" title="Переключить тему">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <div class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if user.first_name and user.last_name %}
+                        <span>{{ user.first_name|first }}{{ user.last_name|first }}</span>
+                    {% elif user.first_name %}
+                        <span>{{ user.first_name|first|upper }}</span>
+                    {% else %}
+                        <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end" style="margin-top: 10px;">
+                    <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i>Профиль</a></li>
+                    <li><a class="dropdown-item" href="{% url 'settings' %}"><i class="fas fa-cog me-2"></i>Настройки</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Выйти</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const html = document.documentElement;
+            
+            // Загружаем сохраненную тему из localStorage
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            html.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+            
+            // Переключение темы
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+            
+            function updateThemeIcon(theme) {
+                if (theme === 'dark') {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            }
+            
+            // Мобильное меню
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+            
+            // Закрытие меню при клике вне его
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(e.target) && 
+                    !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('show');
+                }
+            });
+            
+            // Float кнопка ИИ-помощника
+            const aiFab = document.getElementById('aiFab');
+            const aiMiniMenu = document.getElementById('aiMiniMenu');
+            const closeMiniMenu = document.getElementById('closeMiniMenu');
+            const openFullChat = document.getElementById('openFullChat');
+            const miniChatInput = document.getElementById('miniChatInput');
+            const miniSendBtn = document.getElementById('miniSendBtn');
+            const miniChatMessages = document.getElementById('miniChatMessages');
+            const quickActionBtns = document.querySelectorAll('.quick-action-btn');
+            
+            let miniSessionId = 'mini_session_' + Date.now();
+            let isMenuOpen = false;
+            
+            // Открытие/закрытие мини-меню
+            aiFab.addEventListener('click', function() {
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    aiMiniMenu.classList.add('show');
+                    aiFab.classList.add('active');
+                    miniChatInput.focus();
+                } else {
+                    aiMiniMenu.classList.remove('show');
+                    aiFab.classList.remove('active');
+                }
+            });
+            
+            // Закрытие мини-меню
+            closeMiniMenu.addEventListener('click', function() {
+                isMenuOpen = false;
+                aiMiniMenu.classList.remove('show');
+                aiFab.classList.remove('active');
+            });
+            
+            // Открытие полного чата
+            openFullChat.addEventListener('click', function() {
+                window.location.href = '{% url "chatai:chat_page" %}';
+            });
+            
+            // Быстрые действия
+            quickActionBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.dataset.action;
+                    let message = '';
+                    
+                    switch(action) {
+                        case 'ask':
+                            message = 'У меня есть вопрос по проекту';
+                            break;
+                        case 'help':
+                            message = 'Помоги мне с задачей';
+                            break;
+                        case 'code':
+                            message = 'Проверь этот код на ошибки';
+                            break;
+                    }
+                    
+                    miniChatInput.value = message;
+                    sendMiniMessage();
+                });
+            });
+            
+            // Отправка мини-сообщения
+            async function sendMiniMessage() {
+                const message = miniChatInput.value.trim();
+                if (!message) return;
+                
+                addMiniMessage(message, 'user');
+                miniChatInput.value = '';
+                
+                // Показываем индикатор набора
+                addMiniMessage('<i class="fas fa-robot me-2"></i>Печатает...', 'ai typing');
+                
+                try {
+                    const response = await fetch('/ai/api/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            session_id: miniSessionId
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    // Удаляем индикатор набора
+                    const typingMsg = miniChatMessages.querySelector('.typing');
+                    if (typingMsg) typingMsg.remove();
+                    
+                    if (data.success) {
+                        addMiniMessage(data.response, 'ai');
+                    } else {
+                        addMiniMessage('Ошибка. Попробуйте еще раз.', 'ai');
+                    }
+                } catch (error) {
+                    const typingMsg = miniChatMessages.querySelector('.typing');
+                    if (typingMsg) typingMsg.remove();
+                    addMiniMessage('Ошибка соединения.', 'ai');
+                }
+            }
+            
+            // Добавление мини-сообщения
+            function addMiniMessage(content, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `mini-message ${type}`;
+                messageDiv.innerHTML = content;
+                
+                miniChatMessages.appendChild(messageDiv);
+                miniChatMessages.scrollTop = miniChatMessages.scrollHeight;
+            }
+            
+            // Обработчики мини-чата
+            miniSendBtn.addEventListener('click', sendMiniMessage);
+            miniChatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMiniMessage();
+                }
+            });
+            
+            // Закрытие мини-меню при клике вне его
+            document.addEventListener('click', function(e) {
+                if (isMenuOpen && 
+                    !aiMiniMenu.contains(e.target) && 
+                    !aiFab.contains(e.target)) {
+                    isMenuOpen = false;
+                    aiMiniMenu.classList.remove('show');
+                    aiFab.classList.remove('active');
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Float кнопка ИИ-помощника -->
+    <div class="ai-fab" id="aiFab">
+        <i class="fas fa-robot"></i>
+    </div>
+    
+    <!-- Мини-меню ИИ-помощника -->
+    <div class="ai-mini-menu" id="aiMiniMenu">
+        <div class="mini-menu-header">
+            <i class="fas fa-robot me-2"></i>
+            <span>ИИ-помощник</span>
+            <button class="btn-close" id="closeMiniMenu"></button>
+        </div>
+        <div class="mini-menu-content">
+            <div class="quick-actions">
+                <button class="quick-action-btn" data-action="ask">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Задать вопрос</span>
+                </button>
+                <button class="quick-action-btn" data-action="help">
+                    <i class="fas fa-life-ring"></i>
+                    <span>Помощь</span>
+                </button>
+                <button class="quick-action-btn" data-action="code">
+                    <i class="fas fa-code"></i>
+                    <span>Код</span>
+                </button>
+            </div>
+            <div class="mini-chat" id="miniChat">
+                <div class="mini-chat-messages" id="miniChatMessages"></div>
+                <div class="mini-chat-input">
+                    <input type="text" id="miniChatInput" placeholder="Быстрый вопрос...">
+                    <button id="miniSendBtn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="mini-menu-footer">
+            <button class="btn btn-sm btn-primary" id="openFullChat">
+                <i class="fas fa-expand me-1"></i>
+                Полный чат
+            </button>
+        </div>
+    </div>
+</body>
+</html>

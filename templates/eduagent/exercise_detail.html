@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ exercise.title }} - Falak{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>{{ exercise.title }}</h2>
+                <a href="{% url 'exercises' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>К списку заданий
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Описание задания</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <span class="badge bg-{{ exercise.difficulty|yesno:'success,warning,danger' }} me-2">
+                                    {{ exercise.get_difficulty_display }}
+                                </span>
+                                <span class="badge bg-primary me-2">{{ exercise.points }} очков</span>
+                                <span class="badge bg-secondary">{{ exercise.get_category_display }}</span>
+                            </div>
+                            <p class="mb-0">{{ exercise.description|safe }}</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-code me-2"></i>Решение</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="exerciseForm">
+                                <div class="mb-3">
+                                    <label for="codeEditor" class="form-label">Напиши свой код:</label>
+                                    <textarea class="form-control font-monospace" id="codeEditor" rows="15" 
+                                              placeholder="# Напиши здесь свой код...">{{ user_exercise.user_code }}</textarea>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <small class="text-muted">
+                                            Попыток: {{ user_exercise.attempts }}
+                                            {% if user_exercise.is_completed %}
+                                            | <span class="text-success">Выполнено! +{{ exercise.points }} очков</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-primary me-2" id="runCode">
+                                            <i class="fas fa-play me-1"></i>Запустить
+                                        </button>
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-check me-1"></i>Проверить
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Подсказки</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion" id="hintsAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                data-bs-target="#hint1">
+                                            Подсказка 1
+                                        </button>
+                                    </h2>
+                                    <div id="hint1" class="accordion-collapse collapse" data-bs-parent="#hintsAccordion">
+                                        <div class="accordion-body">
+                                            Внимательно прочитай условие задачи и подумай о простом решении.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                data-bs-target="#hint2">
+                                            Подсказка 2
+                                        </button>
+                                    </h2>
+                                    <div id="hint2" class="accordion-collapse collapse" data-bs-parent="#hintsAccordion">
+                                        <div class="accordion-body">
+                                            Используй базовые конструкции языка для решения задачи.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-trophy me-2"></i>Награды</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Очки за выполнение:</span>
+                                <strong>{{ exercise.points }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Бонус за скорость:</span>
+                                <strong>+5</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Бонус за 1 попытку:</span>
+                                <strong>+10</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Результат модальное окно -->
+<div class="modal fade" id="resultModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resultTitle">Результат</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="resultBody">
+                <!-- Результат будет здесь -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('exerciseForm');
+    const runBtn = document.getElementById('runCode');
+    const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+    
+    // Проверка решения
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const code = document.getElementById('codeEditor').value;
+        const exerciseId = {{ exercise.id }};
+        
+        fetch(`/exercises/${exerciseId}/submit/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `code=${encodeURIComponent(code)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            const resultTitle = document.getElementById('resultTitle');
+            const resultBody = document.getElementById('resultBody');
+            
+            if (data.success) {
+                resultTitle.textContent = '🎉 Отлично!';
+                resultBody.innerHTML = `
+                    <div class="alert alert-success">
+                        <h6>${data.message}</h6>
+                        <p>Ты заработал {{ exercise.points }} очков!</p>
+                    </div>
+                `;
+                // Перезагрузить страницу через 2 секунды
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                resultTitle.textContent = '😔 Попробуй еще раз';
+                resultBody.innerHTML = `
+                    <div class="alert alert-warning">
+                        <h6>${data.message}</h6>
+                        <p>Проверь свой код и попробуй снова.</p>
+                    </div>
+                `;
+            }
+            
+            resultModal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    
+    // Запуск кода (просто показывает код)
+    runBtn.addEventListener('click', function() {
+        const code = document.getElementById('codeEditor').value;
+        console.log('Running code:', code);
+        // Здесь можно добавить реальное выполнение кода
+    });
+    
+    // Функция для получения CSRF токена
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}

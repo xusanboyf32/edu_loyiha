@@ -1,0 +1,322 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - EduAgent</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .auth-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .auth-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2563EB;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        .auth-body {
+            padding: 24px;
+        }
+
+        .btn-primary {
+            background-color: #2563EB;
+            border-color: #2563EB;
+            height: 48px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #1D4ED8;
+            border-color: #1D4ED8;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo"><i class="fas fa-graduation-cap"></i> EduAgent</div>
+                <div class="auth-subtitle">Войдите в систему</div>
+            </div>
+            
+            <div class="auth-body">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Номер телефона</label>
+                        <input type="text" name="phone_number" class="form-control" placeholder="+998XXXXXXXXX" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Войти
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p class="small text-muted">Или войдите через</p>
+                    <button id="telegramAuthBtn" class="btn btn-outline-primary w-100" onclick="startTelegramAuth()">
+                        <i class="fab fa-telegram me-2"></i> Telegram с кодом
+                    </button>
+                </div>
+
+                <!-- Telegram Auth Modal -->
+                <div class="modal fade" id="telegramModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header border-0">
+                                <h5 class="modal-title">
+                                    <i class="fab fa-telegram text-primary me-2"></i>
+                                    Вход через Telegram
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="telegramSteps">
+                                    <!-- Step 1: Loading -->
+                                    <div id="step1" class="text-center py-4">
+                                        <div class="spinner-border text-primary mb-3" role="status">
+                                            <span class="visually-hidden">Загрузка...</span>
+                                        </div>
+                                        <p class="mb-0">Создание сессии...</p>
+                                    </div>
+
+                                    <!-- Step 2: Instructions -->
+                                    <div id="step2" class="d-none">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Инструкция:</strong>
+                                            <ol class="mb-0 mt-2">
+                                                <li>Нажмите кнопку ниже, чтобы открыть Telegram</li>
+                                                <li>Отправьте свой номер телефона боту</li>
+                                                <li>Введите полученный 4-значный код</li>
+                                            </ol>
+                                        </div>
+                                        
+                                        <div class="text-center mb-3">
+                                            <a id="telegramLink" href="#" target="_blank" class="btn btn-primary">
+                                                <i class="fab fa-telegram me-2"></i>
+                                                Открыть Telegram
+                                            </a>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Введите код из Telegram:</label>
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <input type="text" class="form-control text-center" maxlength="1" id="code1">
+                                                <input type="text" class="form-control text-center" maxlength="1" id="code2">
+                                                <input type="text" class="form-control text-center" maxlength="1" id="code3">
+                                                <input type="text" class="form-control text-center" maxlength="1" id="code4">
+                                            </div>
+                                        </div>
+
+                                        <button id="verifyCodeBtn" class="btn btn-success w-100">
+                                            <i class="fas fa-check me-2"></i>Подтвердить код
+                                        </button>
+                                    </div>
+
+                                    <!-- Step 3: Success -->
+                                    <div id="step3" class="text-center py-4 d-none">
+                                        <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                                        <h5 class="mt-3">Успешная аутентификация!</h5>
+                                        <p class="text-muted">Перенаправление в систему...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    let currentSessionToken = null;
+                    let telegramModal = null;
+
+                    document.addEventListener('DOMContentLoaded', function() {
+                        telegramModal = new bootstrap.Modal(document.getElementById('telegramModal'));
+                        
+                        // Auto-focus next code input
+                        document.querySelectorAll('#code1, #code2, #code3, #code4').forEach((input, index) => {
+                            input.addEventListener('input', function() {
+                                if (this.value.length === 1 && index < 3) {
+                                    document.getElementById(`code${index + 2}`).focus();
+                                }
+                            });
+
+                            input.addEventListener('keydown', function(e) {
+                                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                                    document.getElementById(`code${index}`).focus();
+                                }
+                            });
+                        });
+
+                        // Handle Enter key in last input
+                        document.getElementById('code4').addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                verifyCode();
+                            }
+                        });
+
+                        document.getElementById('verifyCodeBtn').addEventListener('click', verifyCode);
+                    });
+
+                    async function startTelegramAuth() {
+                        telegramModal.show();
+                        
+                        try {
+                            const response = await fetch('/auth/telegram/start/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify({})
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                currentSessionToken = data.session_token;
+                                const botUrl = `https://t.me/eduagentlogin_bot?start=login_${data.session_token}`;
+                                
+                                document.getElementById('telegramLink').href = botUrl;
+                                document.getElementById('step1').classList.add('d-none');
+                                document.getElementById('step2').classList.remove('d-none');
+                                document.getElementById('code1').focus();
+                                
+                            } else {
+                                throw new Error(data.error || 'Ошибка создания сессии');
+                            }
+                            
+                        } catch (error) {
+                            console.error('Error:', error);
+                            telegramModal.hide();
+                            alert('Ошибка: ' + error.message);
+                        }
+                    }
+
+                    async function verifyCode() {
+                        const code = Array.from({length: 4}, (_, i) => 
+                            document.getElementById(`code${i + 1}`).value
+                        ).join('');
+                        
+                        if (code.length !== 4) {
+                            alert('Пожалуйста, введите полный код (4 цифры)');
+                            return;
+                        }
+                        
+                        const btn = document.getElementById('verifyCodeBtn');
+                        const originalText = btn.innerHTML;
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Проверка...';
+                        btn.disabled = true;
+                        
+                        try {
+                            const response = await fetch('/auth/telegram/verify/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify({
+                                    session_token: currentSessionToken,
+                                    code: code
+                                })
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                document.getElementById('step2').classList.add('d-none');
+                                document.getElementById('step3').classList.remove('d-none');
+                                
+                                setTimeout(() => {
+                                    window.location.href = data.redirect_url || '/';
+                                }, 1500);
+                                
+                            } else {
+                                throw new Error(data.error || 'Неверный код');
+                            }
+                            
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Ошибка: ' + error.message);
+                            
+                            // Clear code inputs
+                            document.querySelectorAll('#code1, #code2, #code3, #code4').forEach(input => {
+                                input.value = '';
+                            });
+                            document.getElementById('code1').focus();
+                        } finally {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                        }
+                    }
+
+                    function getCookie(name) {
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            const cookies = document.cookie.split(';');
+                            for (let i = 0; i < cookies.length; i++) {
+                                const cookie = cookies[i].trim();
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

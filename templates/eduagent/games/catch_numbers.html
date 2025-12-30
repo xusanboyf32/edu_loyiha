@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ game.title }} - Falak{% endblock %}
+
+{% block extra_css %}
+<style>
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.game-area {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+}
+
+.falling-number {
+    position: absolute;
+    background: white;
+    color: #333;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.falling-number:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.falling-number.correct {
+    background: #28a745;
+    color: white;
+}
+
+.falling-number.wrong {
+    background: #dc3545;
+    color: white;
+}
+
+.target-number {
+    font-size: 48px;
+    font-weight: bold;
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+}
+
+.game-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.game-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-game {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-start {
+    background: #28a745;
+    color: white;
+}
+
+.btn-stop {
+    background: #dc3545;
+    color: white;
+}
+
+.message {
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-weight: bold;
+    text-align: center;
+}
+
+.message-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="game-container">
+        <!-- Заголовок игры -->
+        <div class="text-center mb-4">
+            <h2><i class="fas fa-sort-numeric-down me-2"></i>{{ game.title }}</h2>
+            <p class="text-muted">{{ game.description }}</p>
+        </div>
+
+        <!-- Статистика игры -->
+        <div class="game-stats">
+            <div class="stat-item">
+                <div class="stat-number" id="score">0</div>
+                <div class="stat-label">Очки</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="timer">0:00</div>
+                <div class="stat-label">Время</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="coins">{{ user_coins }}</div>
+                <div class="stat-label">Монеты</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="caught">0</div>
+                <div class="stat-label">Поймано</div>
+            </div>
+        </div>
+
+        <!-- Игровое поле -->
+        <div class="game-area" id="game-area">
+            <div class="target-number" id="target-number">15</div>
+            <div id="message"></div>
+            
+            <div class="game-controls">
+                <button class="btn-game btn-start" id="start-btn" onclick="startGame()">
+                    <i class="fas fa-play me-2"></i>Начать игру
+                </button>
+                <button class="btn-game btn-stop" id="stop-btn" onclick="stopGame()" style="display: none;">
+                    <i class="fas fa-stop me-2"></i>Закончить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let score = 0;
+let caught = 0;
+let missed = 0;
+let startTime = Date.now();
+let timerInterval;
+let gameInterval;
+let targetNumber = 15;
+let gameActive = false;
+
+// Начать игру
+function startGame() {
+    gameActive = true;
+    score = 0;
+    caught = 0;
+    missed = 0;
+    startTime = Date.now();
+    
+    document.getElementById('score').textContent = '0';
+    document.getElementById('caught').textContent = '0';
+    document.getElementById('start-btn').style.display = 'none';
+    document.getElementById('stop-btn').style.display = 'inline-block';
+    document.getElementById('message').innerHTML = '';
+    
+    generateNewTarget();
+    startTimer();
+    startFallingNumbers();
+}
+
+// Остановить игру
+function stopGame() {
+    gameActive = false;
+    clearInterval(timerInterval);
+    clearInterval(gameInterval);
+    
+    const totalTime = Math.floor((Date.now() - startTime) / 1000);
+    const earnedCoins = Math.floor(caught * {{ game.reward_coins }} / 10);
+    
+    document.getElementById('start-btn').style.display = 'inline-block';
+    document.getElementById('stop-btn').style.display = 'none';
+    
+    showMessage('Игра завершена! Поймано: ' + caught + ', заработано монет: ' + earnedCoins, 'success');
+    
+    // Очищаем игровое поле
+    document.querySelectorAll('.falling-number').forEach(num => num.remove());
+    
+    // Отправляем результат на сервер
+    fetch('/games/play/{{ game.id }}/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: 'score=' + score + '&time_spent=' + totalTime
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Результат сохранен:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка сохранения результата:', error);
+    });
+}
+
+// Сгенерировать новое целевое число
+function generateNewTarget() {
+    targetNumber = Math.floor(Math.random() * 20) + 1;
+    document.getElementById('target-number').textContent = targetNumber;
+}
+
+// Начать падение чисел
+function startFallingNumbers() {
+    gameInterval = setInterval(() => {
+        if (!gameActive) return;
+        
+        createFallingNumber();
+    }, 1500);
+}
+
+// Создать падающее число
+function createFallingNumber() {
+    const gameArea = document.getElementById('game-area');
+    const number = document.createElement('div');
+    number.className = 'falling-number';
+    
+    const value = Math.floor(Math.random() * 20) + 1;
+    number.textContent = value;
+    number.dataset.value = value;
+    
+    // Случайная позиция по горизонтали
+    const maxX = gameArea.offsetWidth - 60;
+    number.style.left = Math.random() * maxX + 'px';
+    number.style.top = '-60px';
+    
+    number.onclick = () => catchNumber(number, value);
+    
+    gameArea.appendChild(number);
+    
+    // Анимация падения
+    animateFalling(number);
+}
+
+// Анимировать падение
+function animateFalling(element) {
+    let position = -60;
+    const speed = 2 + Math.random() * 2;
+    
+    const animation = setInterval(() => {
+        if (!gameActive) {
+            clearInterval(animation);
+            return;
+        }
+        
+        position += speed;
+        element.style.top = position + 'px';
+        
+        // Если число вышло за пределы игрового поля
+        if (position > 400) {
+            clearInterval(animation);
+            if (!element.classList.contains('correct') && !element.classList.contains('wrong')) {
+                missed++;
+                showMessage('Пропущено число ' + element.dataset.value, 'error');
+            }
+            element.remove();
+        }
+    }, 20);
+}
+
+// Поймать число
+function catchNumber(element, value) {
+    if (!gameActive) return;
+    
+    if (value === targetNumber) {
+        // Правильное число
+        element.classList.add('correct');
+        caught++;
+        score += 10;
+        
+        document.getElementById('score').textContent = score;
+        document.getElementById('caught').textContent = caught;
+        
+        showMessage('Отлично! +' + 10 + ' очков', 'success');
+        
+        // Генерируем новое целевое число
+        generateNewTarget();
+        
+        setTimeout(() => element.remove(), 500);
+    } else {
+        // Неправильное число
+        element.classList.add('wrong');
+        score = Math.max(0, score - 5);
+        
+        document.getElementById('score').textContent = score;
+        
+        showMessage('Неправильно! -5 очков', 'error');
+        
+        setTimeout(() => element.remove(), 500);
+    }
+}
+
+// Показать сообщение
+function showMessage(text, type) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.className = 'message message-' + type;
+    messageDiv.textContent = text;
+    
+    setTimeout(() => {
+        messageDiv.className = '';
+        messageDiv.textContent = '';
+    }, 2000);
+}
+
+// Обновить таймер
+function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    document.getElementById('timer').textContent = minutes + ':' + seconds.toString().padStart(2, '0');
+}
+
+// Запустить таймер
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Получить CSRF токен
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

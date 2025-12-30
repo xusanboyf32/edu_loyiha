@@ -1,0 +1,427 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ game.title }} - Falak{% endblock %}
+
+{% block extra_css %}
+<style>
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.question-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.question-text {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.answer-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 24px;
+    border: none;
+    border-radius: 10px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.game-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.game-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-game {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-check {
+    background: #28a745;
+    color: white;
+}
+
+.btn-check:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+
+.btn-skip {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-skip:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.result-message {
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-weight: bold;
+    text-align: center;
+}
+
+.result-correct {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.result-wrong {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    transition: width 0.3s ease;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="game-container">
+        <!-- Заголовок игры -->
+        <div class="text-center mb-4">
+            <h2><i class="fas fa-calculator me-2"></i>{{ game.title }}</h2>
+            <p class="text-muted">{{ game.description }}</p>
+        </div>
+
+        <!-- Статистика игры -->
+        <div class="game-stats">
+            <div class="stat-item">
+                <div class="stat-number" id="score">0</div>
+                <div class="stat-label">Очки</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="timer">0:00</div>
+                <div class="stat-label">Время</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="coins">{{ user_coins }}</div>
+                <div class="stat-label">Монеты</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="question-number">1/10</div>
+                <div class="stat-label">Вопрос</div>
+            </div>
+        </div>
+
+        <!-- Прогресс -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 10%"></div>
+        </div>
+
+        <!-- Карточка вопроса -->
+        <div class="question-card">
+            <div class="question-text" id="question">Загрузка...</div>
+            <input type="number" class="answer-input" id="answer" placeholder="Ваш ответ" autocomplete="off">
+            <div id="result-message"></div>
+        </div>
+
+        <!-- Кнопки управления -->
+        <div class="game-controls">
+            <button class="btn-game btn-check" onclick="checkAnswer()">
+                <i class="fas fa-check me-2"></i>Проверить
+            </button>
+            <button class="btn-game btn-skip" onclick="skipQuestion()">
+                <i class="fas fa-forward me-2"></i>Пропустить
+            </button>
+        </div>
+
+        <!-- Результаты игры -->
+        <div id="game-results" style="display: none;">
+            <div class="text-center">
+                <h3>🎉 Игра завершена!</h3>
+                <div class="mt-4">
+                    <h4>Твои результаты:</h4>
+                    <p>Правильных ответов: <strong id="correct-count">0</strong></p>
+                    <p>Время игры: <strong id="total-time">0:00</strong></p>
+                    <p>Заработано монет: <strong id="earned-coins">0</strong></p>
+                    <p>Общий счет: <strong id="final-score">0</strong></p>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'mini_games' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Назад к играм
+                    </a>
+                    <button class="btn btn-success" onclick="restartGame()">
+                        <i class="fas fa-redo me-2"></i>Играть снова
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentQuestion = 0;
+let score = 0;
+let correctAnswers = 0;
+let startTime = Date.now();
+let timerInterval;
+let questions = [];
+
+// Генерируем математические вопросы
+function generateQuestions() {
+    questions = [];
+    const operations = ['+', '-', '*', '/'];
+    
+    for (let i = 0; i < 10; i++) {
+        const operation = operations[Math.floor(Math.random() * operations.length)];
+        let a, b, answer, question;
+        
+        switch(operation) {
+            case '+':
+                a = Math.floor(Math.random() * 50) + 1;
+                b = Math.floor(Math.random() * 50) + 1;
+                answer = a + b;
+                question = `${a} + ${b} = ?`;
+                break;
+            case '-':
+                a = Math.floor(Math.random() * 50) + 10;
+                b = Math.floor(Math.random() * a) + 1;
+                answer = a - b;
+                question = `${a} - ${b} = ?`;
+                break;
+            case '*':
+                a = Math.floor(Math.random() * 12) + 1;
+                b = Math.floor(Math.random() * 12) + 1;
+                answer = a * b;
+                question = `${a} × ${b} = ?`;
+                break;
+            case '/':
+                b = Math.floor(Math.random() * 10) + 1;
+                answer = Math.floor(Math.random() * 10) + 1;
+                a = b * answer;
+                question = `${a} ÷ ${b} = ?`;
+                break;
+        }
+        
+        questions.push({
+            question: question,
+            answer: answer.toString()
+        });
+    }
+}
+
+// Показать текущий вопрос
+function showQuestion() {
+    if (currentQuestion >= questions.length) {
+        endGame();
+        return;
+    }
+    
+    const question = questions[currentQuestion];
+    document.getElementById('question').textContent = question.question;
+    document.getElementById('answer').value = '';
+    document.getElementById('answer').focus();
+    document.getElementById('question-number').textContent = `${currentQuestion + 1}/${questions.length}`;
+    document.getElementById('progress').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+    
+    // Очищаем предыдущее сообщение
+    const resultDiv = document.getElementById('result-message');
+    resultDiv.className = '';
+    resultDiv.textContent = '';
+}
+
+// Проверить ответ
+function checkAnswer() {
+    const userAnswer = document.getElementById('answer').value.trim();
+    const correctAnswer = questions[currentQuestion].answer;
+    const resultDiv = document.getElementById('result-message');
+    
+    if (!userAnswer) {
+        resultDiv.className = 'result-message result-wrong';
+        resultDiv.textContent = '❌ Введите ответ!';
+        return;
+    }
+    
+    if (userAnswer === correctAnswer) {
+        // Правильный ответ
+        correctAnswers++;
+        score += 10;
+        resultDiv.className = 'result-message result-correct';
+        resultDiv.textContent = '✅ Правильно!';
+        document.getElementById('score').textContent = score;
+        
+        setTimeout(() => {
+            currentQuestion++;
+            showQuestion();
+        }, 1000);
+    } else {
+        // Неправильный ответ
+        resultDiv.className = 'result-message result-wrong';
+        resultDiv.textContent = `❌ Неправильно! Правильный ответ: ${correctAnswer}`;
+        
+        setTimeout(() => {
+            currentQuestion++;
+            showQuestion();
+        }, 2000);
+    }
+}
+
+// Пропустить вопрос
+function skipQuestion() {
+    currentQuestion++;
+    showQuestion();
+}
+
+// Обновить таймер
+function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Завершить игру
+function endGame() {
+    clearInterval(timerInterval);
+    
+    const totalTime = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(totalTime / 60);
+    const seconds = totalTime % 60;
+    const earnedCoins = Math.floor(correctAnswers * {{ game.reward_coins }} / 10);
+    
+    document.getElementById('correct-count').textContent = correctAnswers;
+    document.getElementById('total-time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('earned-coins').textContent = earnedCoins;
+    document.getElementById('final-score').textContent = score;
+    
+    // Скрываем игру и показываем результаты
+    document.querySelector('.question-card').style.display = 'none';
+    document.querySelector('.game-controls').style.display = 'none';
+    document.getElementById('game-results').style.display = 'block';
+    
+    // Отправляем результат на сервер
+    fetch(`/games/play/{{ game.id }}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: `score=${score}&time_spent=${totalTime}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('earned-coins').textContent = data.coins_earned;
+            console.log('Результат сохранен:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка сохранения результата:', error);
+    });
+}
+
+// Начать игру заново
+function restartGame() {
+    currentQuestion = 0;
+    score = 0;
+    correctAnswers = 0;
+    startTime = Date.now();
+    
+    document.getElementById('score').textContent = '0';
+    document.querySelector('.question-card').style.display = 'block';
+    document.querySelector('.game-controls').style.display = 'flex';
+    document.getElementById('game-results').style.display = 'none';
+    
+    generateQuestions();
+    showQuestion();
+    startTimer();
+}
+
+// Запустить таймер
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Получить CSRF токен
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Инициализация игры
+document.addEventListener('DOMContentLoaded', function() {
+    generateQuestions();
+    showQuestion();
+    startTimer();
+    
+    // Обработка Enter
+    document.getElementById('answer').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkAnswer();
+        }
+    });
+});
+</script>
+{% endblock %}
